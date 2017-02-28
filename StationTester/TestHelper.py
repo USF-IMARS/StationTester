@@ -7,7 +7,7 @@ import os
 import shutil
 
 class TestHelper:
-    wrapper_home = '/home/ipopp/drl/station-tester/wrapper/lib'
+    wrapper_home = '/home/ipopp/drl/StationTester/wrapper/lib'
     testoutdir = "../testdata/output"
     testindir = "../testdata/input"
     testscriptdir = "./"
