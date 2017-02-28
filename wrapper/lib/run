@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# bash script that spins Java wrapper up on the algorithm here
+# We rashly assume that 'java' is on our PATH as Java 1.5 or better
+#
+# takes 1 args:
+#    location of the SPA station containing the algorithm (~/drl/SPA/modisl1db/wrapper/l0tol1)
+
+SHELLDIR=$1
+SPADIR=$SHELLDIR/../../
+shift  # eat the arg passed to this wrapper
+
+echo shelldir is $SHELLDIR
+echo spadir is $SPADIR
+
+# Then crank java using the jar files and the wrapper
+SPAJAR=$SPADIR/wrapper/lib/spa.jar
+INTERPJAR=$SPADIR/wrapper/lib/interp.jar
+NCSJAR=$SPADIR/wrapper/lib/ncs.jar
+NSLSJAR=$SPADIR/wrapper/lib/nsls.jar
+
+java -classpath $SPAJAR:$INTERPJAR:$NCSJAR:$NSLSJAR gov/nasa/gsfc/nisgs/spa/CommandLineRunAlgorithm $SHELLDIR/installation.xml $*

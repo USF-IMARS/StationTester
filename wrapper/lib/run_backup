@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# bash script that spins Java wrapper up on the algorithm here
+# We rashly assume that 'java' is on our PATH as Java 1.5 or better
+#
+# First, find out where we are
+
+case $0 in
+         /*)  SHELLFILE=$0 ;;
+        ./*)  SHELLFILE=${PWD}${0#.} ;;
+        ../*) SHELLFILE=${PWD%/*}${0#..} ;;
+          *)  SHELLFILE=$(type -P $0) ; if [ ${SHELLFILE:0:1} != "/" ]; then SHELLFILE=${PWD}/$SHELLFILE ; fi ;;
+esac
+SHELLDIR=${SHELLFILE%/*}
+SPADIR=${SHELLDIR}/../..
+
+
+echo shelldir is $SHELLDIR
+echo spadir is $SPADIR
+# Then crank java using the jar files and the wrapper
+
+SPAJAR=$SPADIR/wrapper/lib/spa.jar
+INTERPJAR=$SPADIR/wrapper/lib/interp.jar
+NCSJAR=$SPADIR/wrapper/lib/ncs.jar
+NSLSJAR=$SPADIR/wrapper/lib/nsls.jar
+
+java -classpath $SPAJAR:$INTERPJAR:$NCSJAR:$NSLSJAR gov/nasa/gsfc/nisgs/spa/CommandLineRunAlgorithm $SHELLDIR/installation.xml $*
