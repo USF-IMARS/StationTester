@@ -8,10 +8,16 @@ import shutil
 
 class TestHelper:
     wrapper_home = '/home/ipopp/drl/StationTester/wrapper/lib'
-    testoutdir = "../testdata/output"
-    testindir = "../testdata/input"
+    testoutdir = "/home/ipopp/drl/StationTester/test_data/output"
+    testindir = "/home/ipopp/drl/StationTester/test_data/input"
     testscriptdir = "./"
     FNULL = open(os.devnull, 'w')
+
+    # set _should_clean=False to *NOT* clean output files after each test.
+    # Useful for manual file checking, but also dangerous b/c not cleaning up
+    # may cause failing code to pass tests. So just remember to set it back to
+    # True when you're done.
+    _should_clean = True  # should (usually) be True!
 
     @staticmethod
     def _del_testdata_out():
@@ -58,10 +64,13 @@ class TestHelper:
 
     @staticmethod
     def clean():
-        TestHelper._del_testdata_out()
-        TestHelper._del_errfiles()
-        TestHelper._del_stdfiles()
-        TestHelper._cleanup_l1atob()
+        if (TestHelper._should_clean):
+            TestHelper._del_testdata_out()
+            TestHelper._del_errfiles()
+            TestHelper._del_stdfiles()
+            TestHelper._cleanup_l1atob()
+        else:
+            print("WARN: Not cleaning can cause tests to pass erroneously!")
 
     @staticmethod
     def mySetup():
@@ -78,9 +87,11 @@ class TestHelper:
         # assert expected product exists
         for expected_product in products:
             # print(expected_product, '?')
+            expected_file=os.path.join(TestHelper.testoutdir, expected_product)
             testClass.assertTrue(
-                os.path.exists(os.path.join(TestHelper.testoutdir, expected_product)),
-                'expected product: "' + expected_product + '" not found.'
+                os.path.exists(expected_file),
+                'expected product: "' + expected_product + '" not found at '
+                + expected_file
             )
         # assert no errs in errfiles
         for errfile in errfiles:
