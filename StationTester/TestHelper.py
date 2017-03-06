@@ -5,6 +5,7 @@ file cleanup and errfile checking.
 
 import os
 import shutil
+import subprocess
 
 class TestHelper:
     wrapper_home = os.path.expanduser("~/drl/StationTester/wrapper/lib")
@@ -18,6 +19,29 @@ class TestHelper:
     # may cause failing code to pass tests. So just remember to set it back to
     # True when you're done.
     _should_clean = True  # should (usually) be True!
+
+    @staticmethod
+    def SPA_command(
+            testClass,
+            command,
+            products=[],
+            errfiles=[],
+            expected_return_value=None
+        ):
+        """
+        tests the given spa command
+        products : list of files expected to be produced in the testoutdir
+        errfiles : list of files expected to be empty after running command
+        expected_return_value : value command is expected to return
+        """
+        print(command)
+        return_value = subprocess.call(
+            command, shell=True, stdout=TestHelper.FNULL, stderr=subprocess.STDOUT
+        )
+
+        TestHelper._test_products_and_errfiles(testClass, products, errfiles)
+        if (expected_return_value is not None):
+            testClass.assertEquals(return_value, expected_return_value)
 
     @staticmethod
     def _del_testdata_out():
