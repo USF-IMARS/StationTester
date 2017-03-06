@@ -57,3 +57,32 @@ TestHelper.SPA_command( self,
 
 3. Look for `cmd = *`. You may copy and modify these commands to create tests
   for the specific algorithm command at this step.
+
+More hints about the usage of commands can be deciphered from an `Ncs_run` command in the
+`<commands>` block of stations' `generic.xml` files:
+
+```
+<!-- Run L0 to L1 -->
+<Ncs_run debug="true"
+runFlag="true" standardFile="stdfileL1A" errorFile="errfileL1A"
+  cmd="{ML1Acmd} {modis.pds} -m {sat} -o L1A.hdf --log"
+>
+  <env name="DBHOME" value="{modis_L1_home}"/>
+  <env name="SEADAS" value="{modis_L1_home}"/>
+  <env name="OCSSWROOT" value="{modis_L1_home}"/>
+  <env name="MODIS_GEO" value="."/>
+  <env name="MODIS_L1A" value="."/>
+  <env name="MODIS_L1B" value="."/>
+  <env name="LIB3_BIN" value="{modis_L1_home}{/}run{/}bin"/>
+  <env name="OCDATAROOT" value="{modis_L1_home}{/}run{/}data"/>
+  <env name="MODIS_ATTEPH" value="{modis_L1_home}{/}var{/}modis{/}atteph"/>
+  <env name="AQUA_REFL_LUT" value="."/>
+  <env name="AQUA_EMIS_LUT" value="."/>
+  <env name="AQUA_QA_LUT" value="."/>
+  <env name="TERRA_REFL_LUT" value="."/>
+  <env name="TERRA_EMIS_LUT" value="."/>
+  <env name="TERRA_QA_LUT" value="."/>
+  <env name="OCSSW_BIN" value="{modis_L1_home}{/}run{/}bin"/>
+  <env name="PATH" value="{modis_L1_home}{/}run{/}scripts:{modis_L1_home}{/}run{/}bin:{PATH}"/>
+</Ncs_run>
+```

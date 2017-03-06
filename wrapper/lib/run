@@ -19,4 +19,9 @@ INTERPJAR=$SPADIR/wrapper/lib/interp.jar
 NCSJAR=$SPADIR/wrapper/lib/ncs.jar
 NSLSJAR=$SPADIR/wrapper/lib/nsls.jar
 
-java -classpath $SPAJAR:$INTERPJAR:$NCSJAR:$NSLSJAR gov/nasa/gsfc/nisgs/spa/CommandLineRunAlgorithm $SHELLDIR/installation.xml $*
+RESULT=''
+RETURN=''
+RESULT=$(java -classpath $SPAJAR:$INTERPJAR:$NCSJAR:$NSLSJAR gov/nasa/gsfc/nisgs/spa/CommandLineRunAlgorithm $SHELLDIR/installation.xml $*)
+RETURN=$?
+echo $RESULT
+exit $RETURN

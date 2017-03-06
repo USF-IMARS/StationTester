@@ -8,9 +8,11 @@ import shutil
 import subprocess
 
 class TestHelper:
-    wrapper_home = os.path.expanduser("~/drl/StationTester/wrapper/lib")
-    testoutdir   = os.path.expanduser("~/drl/StationTester/test_data/output")
-    testindir    = os.path.expanduser("~/drl/StationTester/test_data/input")
+    stationTestDir = os.path.expanduser("~/drl/StationTester")
+    wrapper_home = os.path.join(stationTestDir, "wrapper/lib")
+    testoutdir   = os.path.join(stationTestDir, "test_data/output")
+    testindir    = os.path.join(stationTestDir, "test_data/input")
+    sandbox      = os.path.join(stationTestDir, "test_data/sandbox")
     testscriptdir = "./"
     FNULL = open(os.devnull, 'w')
 
@@ -29,14 +31,17 @@ class TestHelper:
             expected_return_value=None
         ):
         """
-        Tests the given spa command using the NCS wrapper.
+        Tests the given spa command using the NCS wrapper with
+        cwd=test_data/sandbox. Commands are expected to return 0.
+
         Auto-substitues $INPUT and $OUTPUT with location of
         test_data/{in|out}put directories so you can `$INPUT/testfile.txt`
         in your commands.
 
-        products : list of files expected to be produced in the testoutdir
-        errfiles : list of files expected to be empty after running command
-        expected_return_value : value command is expected to return
+        products : list of files expected to be produced in the testoutdir.
+        errfiles : list of files expected to be empty after running command.
+
+        (DEPRECATED) expected_return_value : value command is expected to return
         """
         # prep command:
         command = TestHelper.wrapper_home+'/run ' + command
@@ -45,14 +50,20 @@ class TestHelper:
 
         # run command:
         print(command)
-        return_value = subprocess.call(
-            command, shell=True, stdout=TestHelper.FNULL, stderr=subprocess.STDOUT
-        )
+        try:
+            subprocess.check_output(
+                command, shell=True, cwd=TestHelper.sandbox
+            )
+        except subprocess.CalledProcessError as err:
+            raise AssertionError(
+                'Command did not return 0. \nCaptured command output below (WARN: may be incomplete):\n\n'
+                + err.output.decode("ascii")+'\n\n'
+            )
 
         # perform checks:
         TestHelper._test_products_and_errfiles(testClass, products, errfiles)
-        if (expected_return_value is not None):
-            testClass.assertEquals(return_value, expected_return_value)
+        # if (expected_return_value is not None):
+        #     testClass.assertEquals(return_value, expected_return_value)
 
     @staticmethod
     def _del_testdata_out():
@@ -93,6 +104,11 @@ class TestHelper:
         for f in folderlist:
             shutil.rmtree(os.path.join(TestHelper.testscriptdir, f))
 
+    def _clean_sandbox():
+        for f in [ fi for fi in os.listdir(TestHelper.sandbox)]:
+            os.remove(os.path.join(TestHelper.testscriptdir, f))
+
+
     @staticmethod
     def file_is_empty(filename):
         return os.stat(filename).st_size == 0
@@ -104,17 +120,18 @@ class TestHelper:
             TestHelper._del_errfiles()
             TestHelper._del_stdfiles()
             TestHelper._cleanup_l1atob()
+            TestHelper._clean_sandbox()
         else:
             print("WARN: Not cleaning can cause tests to pass erroneously!")
 
     @staticmethod
     def mySetup():
-        print ("test setup.")
         TestHelper.clean()
+        print ("test setup complete.")
 
     @staticmethod
     def myTeardown():
-        print ("test clean up.")
+        print ("clean up after test...")
         TestHelper.clean()
 
     @staticmethod
@@ -132,6 +149,8 @@ class TestHelper:
         for errfile in errfiles:
             # print(errfile, '?')
             testClass.assertTrue(
-                TestHelper.file_is_empty(errfile),
+                TestHelper.file_is_empty(
+                    os.path.join(TestHelper.sandbox, errfile)
+                ),
                 'errfile "' + errfile + '" not empty.'
             )
