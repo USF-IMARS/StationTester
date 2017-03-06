@@ -29,16 +29,27 @@ class TestHelper:
             expected_return_value=None
         ):
         """
-        tests the given spa command
+        Tests the given spa command using the NCS wrapper.
+        Auto-substitues $INPUT and $OUTPUT with location of
+        test_data/{in|out}put directories so you can `$INPUT/testfile.txt`
+        in your commands.
+
         products : list of files expected to be produced in the testoutdir
         errfiles : list of files expected to be empty after running command
         expected_return_value : value command is expected to return
         """
+        # prep command:
+        command = TestHelper.wrapper_home+'/run ' + command
+        command = command.replace('$INPUT', TestHelper.testindir)
+        command = command.replace('$OUTPUT', TestHelper.testoutdir)
+
+        # run command:
         print(command)
         return_value = subprocess.call(
             command, shell=True, stdout=TestHelper.FNULL, stderr=subprocess.STDOUT
         )
 
+        # perform checks:
         TestHelper._test_products_and_errfiles(testClass, products, errfiles)
         if (expected_return_value is not None):
             testClass.assertEquals(return_value, expected_return_value)
