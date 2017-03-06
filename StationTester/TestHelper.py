@@ -7,9 +7,9 @@ import os
 import shutil
 
 class TestHelper:
-    wrapper_home = '/home/ipopp/drl/StationTester/wrapper/lib'
-    testoutdir = "/home/ipopp/drl/StationTester/test_data/output"
-    testindir = "/home/ipopp/drl/StationTester/test_data/input"
+    wrapper_home = os.path.expanduser("~/drl/StationTester/wrapper/lib")
+    testoutdir   = os.path.expanduser("~/drl/StationTester/test_data/output")
+    testindir    = os.path.expanduser("~/drl/StationTester/test_data/input")
     testscriptdir = "./"
     FNULL = open(os.devnull, 'w')
 
