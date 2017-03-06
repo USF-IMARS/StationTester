@@ -4,8 +4,4 @@ Installation:
 or
 `python setup.py develop`
 
-Example usage:
-
-```
-from StationTester.TestHelper import TestHelper
-```
+For example usage see `new_test_template.py`.
