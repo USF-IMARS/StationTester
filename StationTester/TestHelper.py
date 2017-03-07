@@ -28,6 +28,7 @@ class TestHelper:
             command,
             products=[],
             errfiles=[],
+            expected_files=[],
             expected_return_value=None
         ):
         """
@@ -62,8 +63,7 @@ class TestHelper:
 
         # perform checks:
         TestHelper._test_products_and_errfiles(testClass, products, errfiles)
-        # if (expected_return_value is not None):
-        #     testClass.assertEquals(return_value, expected_return_value)
+        Testhelper._expect_files(testClass, expected_files)
 
     @staticmethod
     def _del_testdata_out():
@@ -119,6 +119,10 @@ class TestHelper:
         return os.stat(filename).st_size == 0
 
     @staticmethod
+    def file_not_empty(filename):
+        return os.stat(filename).st_size > 0
+
+    @staticmethod
     def clean():
         if (TestHelper._should_clean):
             TestHelper._del_testdata_out()
@@ -138,6 +142,18 @@ class TestHelper:
     def myTeardown():
         print ("clean up after test...")
         TestHelper.clean()
+
+    @staticmethod
+    def _expect_files(testClass, files):
+        # assert non-empty files exist
+        for fff in files:
+            # print(errfile, '?')
+            testClass.assertTrue(
+                TestHelper.file_not_empty(
+                    os.path.join(TestHelper.sandbox, fff)
+                ),
+                'expected file "' + fff + '" is empty.'
+            )
 
     @staticmethod
     def _test_products_and_errfiles(testClass, products, errfiles):
