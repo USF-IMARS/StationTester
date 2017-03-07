@@ -29,7 +29,6 @@ class TestHelper:
             products=[],
             errfiles=[],
             expected_files=[],
-            expected_return_value=None
         ):
         """
         Tests the given spa command using the NCS wrapper with
@@ -41,8 +40,6 @@ class TestHelper:
 
         products : list of files expected to be produced in the testoutdir.
         errfiles : list of files expected to be empty after running command.
-
-        (DEPRECATED) expected_return_value : value command is expected to return
         """
         # prep command:
         command = TestHelper.wrapper_home+'/run ' + command
@@ -62,8 +59,9 @@ class TestHelper:
             )
 
         # perform checks:
-        TestHelper._test_products_and_errfiles(testClass, products, errfiles)
-        Testhelper._expect_files(testClass, expected_files)
+        TestHelper._expect_empty_errfiles(testClass, errfiles)
+        TestHelper._expect_files(testClass, expected_files, TestHelper.sandbox)
+        TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
 
     @staticmethod
     def _del_testdata_out():
@@ -73,44 +71,12 @@ class TestHelper:
             os.remove(os.path.join(TestHelper.testoutdir, f))
 
     @staticmethod
-    def _del_errfiles():
-        print("rm errfile*...")
-        filelist = [ f for f in os.listdir(TestHelper.testscriptdir) if f.startswith('errfile')]
-        for f in filelist:
-            os.remove(os.path.join(TestHelper.testscriptdir, f))
-
-    @staticmethod
-    def _del_stdfiles():
-        print("rm stdfile*...")
-        filelist = [ f for f in os.listdir(TestHelper.testscriptdir) if f.startswith('stdfile')]
-        for f in filelist:
-            os.remove(os.path.join(TestHelper.testscriptdir, f))
-
-    @staticmethod
-    def _cleanup_l1atob():
-        print("rm {*hdf, *pcf}...")
-        filelist = ([
-            f for f in os.listdir(TestHelper.testscriptdir)
-            if (
-                f.endswith('.hdf') or
-                f.endswith('.pcf')
-            )
-        ])
-        for f in filelist:
-            os.remove(os.path.join(TestHelper.testscriptdir, f))
-
-        print("rm *_logs-pcf/...")
-        folderlist = ([f for f in os.listdir(TestHelper.testscriptdir) if f.endswith('_logs-pcf')])
-        for f in folderlist:
-            shutil.rmtree(os.path.join(TestHelper.testscriptdir, f))
-
-    @staticmethod
     def _clean_sandbox():
         for f in [ fi for fi in os.listdir(TestHelper.sandbox)]:
             path = os.path.join(TestHelper.sandbox, f)
             try :
                 os.remove( path )
-            except os.IsADirectoryError:
+            except IsADirectoryError:
                 shutil.rmtree( path )
 
 
@@ -126,9 +92,6 @@ class TestHelper:
     def clean():
         if (TestHelper._should_clean):
             TestHelper._del_testdata_out()
-            TestHelper._del_errfiles()
-            TestHelper._del_stdfiles()
-            TestHelper._cleanup_l1atob()
             TestHelper._clean_sandbox()
         else:
             print("WARN: Not cleaning can cause tests to pass erroneously!")
@@ -144,34 +107,31 @@ class TestHelper:
         TestHelper.clean()
 
     @staticmethod
-    def _expect_files(testClass, files):
-        # assert non-empty files exist
+    def _expect_files(testClass, files, directory):
+        # assert non-empty files exist at given directory
         for fff in files:
             # print(errfile, '?')
+            path=os.path.join(directory, fff)
             testClass.assertTrue(
-                TestHelper.file_not_empty(
-                    os.path.join(TestHelper.sandbox, fff)
-                ),
+                os.path.exists(path),
+                'expected product: "' + fff + '" not found at '
+                + path
+            )
+            testClass.assertTrue(
+                TestHelper.file_not_empty(path),
                 'expected file "' + fff + '" is empty.'
             )
 
     @staticmethod
-    def _test_products_and_errfiles(testClass, products, errfiles):
-        # assert expected product exists
-        for expected_product in products:
-            # print(expected_product, '?')
-            expected_file=os.path.join(TestHelper.testoutdir, expected_product)
-            testClass.assertTrue(
-                os.path.exists(expected_file),
-                'expected product: "' + expected_product + '" not found at '
-                + expected_file
-            )
+    def _expect_empty_errfiles(testClass, errfiles, directory=None):
         # assert no errs in errfiles
+        if (directory is None):
+            directory = TestHelper.sandbox
         for errfile in errfiles:
             # print(errfile, '?')
             testClass.assertTrue(
                 TestHelper.file_is_empty(
-                    os.path.join(TestHelper.sandbox, errfile)
+                    os.path.join(directory, errfile)
                 ),
                 'errfile "' + errfile + '" not empty.'
             )
