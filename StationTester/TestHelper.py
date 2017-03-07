@@ -104,9 +104,14 @@ class TestHelper:
         for f in folderlist:
             shutil.rmtree(os.path.join(TestHelper.testscriptdir, f))
 
+    @staticmethod
     def _clean_sandbox():
         for f in [ fi for fi in os.listdir(TestHelper.sandbox)]:
-            os.remove(os.path.join(TestHelper.testscriptdir, f))
+            path = os.path.join(TestHelper.sandbox, f)
+            try :
+                os.remove( path )
+            except os.IsADirectoryError:
+                shutil.rmtree( path )
 
 
     @staticmethod
