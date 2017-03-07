@@ -5,3 +5,4 @@ test_data/input
 test_data/output
 test_data/sandbox
 test_data/ancillary_data.db
+test_data/error_files

@@ -13,6 +13,7 @@ class TestHelper:
     testoutdir   = os.path.join(stationTestDir, "test_data/output")
     testindir    = os.path.join(stationTestDir, "test_data/input")
     sandbox      = os.path.join(stationTestDir, "test_data/sandbox")
+    err_file_box = os.path.join(stationTestDir, "test_data/err_files")
     testscriptdir = "./"
     FNULL = open(os.devnull, 'w')
 
@@ -129,9 +130,13 @@ class TestHelper:
             directory = TestHelper.sandbox
         for errfile in errfiles:
             # print(errfile, '?')
+            path = os.path.join(directory, errfile)
+            is_empty = TestHelper.file_is_empty(path)
+            if (not is_empty):
+                os.rename(path, os.path.join(TestHelper.err_file_box, errfile))
+
             testClass.assertTrue(
-                TestHelper.file_is_empty(
-                    os.path.join(directory, errfile)
-                ),
-                'errfile "' + errfile + '" not empty.'
+                is_empty,
+                'errfile "' + errfile + '" not empty. \n\t\t'
+                    'Moved to ' + TestHelper.err_file_box + ' for manual inspection.'
             )
