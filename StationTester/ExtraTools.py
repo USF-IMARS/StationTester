@@ -31,6 +31,12 @@ def list_dependencies(package, station=None, verbose=False):
     package: name of SPA station package directory in ~/drl/SPA/
     station: name of the station in SPA_PACKAGE/stations/ dir
                 if not given, lists deps for all station in the package.
+
+    Example usage:
+    ```python
+    from StationTester.ExtraTools import list_dependencies
+    list_dependencies("imars")
+    ```
     """
     deps = dict()
     if (station is None):
