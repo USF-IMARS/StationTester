@@ -46,6 +46,7 @@ class TestHelper:
         command = TestHelper.wrapper_home+'/run ' + command
         command = command.replace('$INPUT', TestHelper.testindir)
         command = command.replace('$OUTPUT', TestHelper.testoutdir)
+        command = command.replace(' ~/', ' '+os.path.expanduser('~/'))
 
         # run command:
         print(command)
