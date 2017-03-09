@@ -41,13 +41,13 @@ def list_dependencies(package, station=None, verbose=False):
     deps = dict()
     if (station is None):
         for stat in get_stations(package):
-            deps[stat] = _list_dependencies(package, stat, verbose)
+            deps[stat] = get_dependencies(package, stat, verbose)
     else:
-        deps[station] = _list_dependencies(package, station, verbose)
+        deps[station] = get_dependencies(package, station, verbose)
 
     print(json.dumps(deps, indent=2))
 
-def _list_dependencies(package, station, verbose=False):
+def get_dependencies(package, station, verbose=False):
     station_path=os.path.expanduser(
         '~/drl/SPA/{}/station/{}/station.cfgfile'.format(package, station)
     )
@@ -57,6 +57,7 @@ def _list_dependencies(package, station, verbose=False):
     station_root = station_tree.getroot()
     station_setup = station_root.find('SETUP')
 
+    # get loaded algorithms
     sub_station_programs = []
     for alg in station_setup.findall('InitAlgorithm'):
         if(verbose): print('\treading InitAlg for ', alg.get('result'))
@@ -74,6 +75,24 @@ def _list_dependencies(package, station, verbose=False):
         for executable in sub_station_root.findall('Executables'):  # should only be one, but findall just in case
             for child in executable:
                 if(verbose): print('\t\t\t', child.text)
-                deps[child.tag] = child.text
+                _addDepToDict(deps, child.tag, child.text)
+
+    # get direct calls to Ncs_run
+    station_exec = station_root.find('EXECUTE')
+    for runblock in station_exec.findall('Ncs_run'):
+        if (verbose): print('.\r')
+        dep = runblock.get('cmd').split()[0]
+        key = dep.split('{/}')[-1]
+        _addDepToDict(deps, key, dep)
+    if (verbose): print('\n')
+
 
     return deps
+
+def _addDepToDict(deps, newdepkey, newdepval):
+    # adds dependency to dict, checks to ensure it doesn't exist first
+    try:
+        test = deps[newdepkey]  # should throw exception
+        raise AssertionError("duplicate key detected in dep list")
+    except KeyError:
+        deps[newdepkey] = newdepval
