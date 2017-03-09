@@ -63,7 +63,8 @@ def get_dependencies(package, station, verbose=False, skip_errors=False):
         if(verbose): print('\treading InitAlg for ', alg.get('result'))
         filepath = alg.get('file')
         filepath = filepath.format(
-            cfg_nisgs_home=os.path.expanduser('~/drl')
+            cfg_nisgs_home=os.path.expanduser('~/drl'),
+            spa_dir=os.path.expanduser('~/drl/SPA')
         )
         sub_station_programs.append(filepath)
 
