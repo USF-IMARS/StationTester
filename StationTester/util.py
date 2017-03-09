@@ -41,13 +41,13 @@ def list_dependencies(package, station=None, verbose=False):
     deps = dict()
     if (station is None):
         for stat in get_stations(package):
-            deps[stat] = get_dependencies(package, stat, verbose)
+            deps[stat] = get_dependencies(package, stat, verbose, skip_errors=True)
     else:
-        deps[station] = get_dependencies(package, station, verbose)
+        deps[station] = get_dependencies(package, station, verbose, skip_errors=True)
 
     print(json.dumps(deps, indent=2))
 
-def get_dependencies(package, station, verbose=False):
+def get_dependencies(package, station, verbose=False, skip_errors=False):
     station_path=os.path.expanduser(
         '~/drl/SPA/{}/station/{}/station.cfgfile'.format(package, station)
     )
@@ -70,12 +70,21 @@ def get_dependencies(package, station, verbose=False):
     deps=dict()
     for sub_station_file in sub_station_programs:
         if(verbose): print('\t\tloading ', sub_station_file, '...')
-        sub_station_tree = xml.etree.ElementTree.parse(sub_station_file)
-        sub_station_root = sub_station_tree.getroot()
-        for executable in sub_station_root.findall('Executables'):  # should only be one, but findall just in case
-            for child in executable:
-                if(verbose): print('\t\t\t', child.text)
-                _addDepToDict(deps, child.tag, child.text)
+        try:
+            sub_station_tree = xml.etree.ElementTree.parse(sub_station_file)
+            sub_station_root = sub_station_tree.getroot()
+            for executable in sub_station_root.findall('Executables'):  # should only be one, but findall just in case
+                for child in executable:
+                    if(verbose): print('\t\t\t', child.text)
+                    _addDepToDict(deps, child.tag, child.text)
+        except FileNotFoundError as err:
+            if(skip_errors):
+                print(
+                    "\n\nERROR: required substation file not found:\n",
+                    sub_station_file, "\n\n"
+                )
+            else:
+                raise FileNotFoundError
 
     # get direct calls to Ncs_run
     station_exec = station_root.find('EXECUTE')
