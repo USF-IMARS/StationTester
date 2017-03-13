@@ -86,7 +86,6 @@ class TestHelper:
             except IsADirectoryError:
                 shutil.rmtree( path )
 
-
     @staticmethod
     def file_is_empty(filename):
         return os.stat(filename).st_size == 0
@@ -128,6 +127,19 @@ class TestHelper:
                 TestHelper.file_not_empty(path),
                 'expected file "' + fff + '" is empty.'
             )
+
+    @staticmethod
+    def expect_params_in_file(testClass, filename, paramDict):
+        """
+        assert given filename contains key-val paired params matching paramDict
+        """
+        actual = util.read_params(filename)
+        testClass.assertDictContainsSubset(paramDict, actual)
+
+    @staticmethod
+    def sandbox_file(filename):
+        """returns full path to file in sandbox"""
+        return os.path.join(TestHelper.sandbox, filename)
 
     @staticmethod
     def _expect_empty_errfiles(testClass, errfiles, directory=None):
