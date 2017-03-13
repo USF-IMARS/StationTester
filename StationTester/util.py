@@ -17,6 +17,7 @@ but may be useful in the future.
 import os
 import json  # for pretty printing
 import xml.etree.ElementTree
+import configparser, itertools  # for param reading
 
 def get_stations(package):
     stations_dir = os.path.expanduser(
@@ -106,3 +107,15 @@ def _addDepToDict(deps, newdepkey, newdepval):
         raise AssertionError("duplicate key detected in dep list")
     except KeyError:
         deps[newdepkey] = newdepval
+
+def read_params(filename):
+    """
+    reads in "="-separated key-val pairs like <Ncs_read> or
+    configparser without [section headers]
+
+    returns configparser section-head dict
+    """
+    cfg = configparser.ConfigParser()
+    with open(filename) as fp:
+        cfg.read_file(itertools.chain(['[global]'], fp), source=filename)
+    return cfg['global']
