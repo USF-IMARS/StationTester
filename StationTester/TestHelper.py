@@ -59,12 +59,13 @@ class TestHelper:
         TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
 
     @staticmethod
-    def check_cmd(cmd):
+    def check_cmd(cmd, env):
         """ runs given command, expects command to return 0 """
         print(cmd)
         try:
             subprocess.check_output(
-                cmd, shell=True, cwd=TestHelper.sandbox
+                cmd, shell=True, cwd=TestHelper.sandbox,
+                env=env
             )
         except subprocess.CalledProcessError as err:
             raise AssertionError(
