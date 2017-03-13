@@ -23,10 +23,19 @@ class Test_util_basic_tests(unittest.TestCase):
         util.list_dependencies("imars", verbose=True)
         util.list_dependencies("seadas7.3", verbose=True)
 
-    def test_config_parser(self):
+    def test_read_params(self):
         params = util.read_params(
             os.path.join(TestHelper.testindir, 'test_config.ini')
         )
         print(params)
         self.assertEqual(params['test1'], 'apple')
         self.assertEqual(params['test2'], 'bin')
+
+    def test_read_paramstring(self):
+        res = util.read_paramstring(
+            "needed_files=~/level2/terra.OC.17047153500.hdf"
+        )
+        self.assertDictContainsSubset(
+            {"needed_files":"~/level2/terra.OC.17047153500.hdf"},
+            res
+        )

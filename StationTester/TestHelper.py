@@ -48,7 +48,6 @@ class TestHelper:
         command = TestHelper.wrapper_home+'/run ' + command
         command = command.replace('$INPUT', TestHelper.testindir)
         command = command.replace('$OUTPUT', TestHelper.testoutdir)
-        command = command.replace(' ~/', ' '+os.path.expanduser('~/'))
 
         # run command:
         TestHelper.check_cmd(command)
@@ -61,12 +60,15 @@ class TestHelper:
     @staticmethod
     def check_cmd(cmd, env):
         """ runs given command, expects command to return 0 """
+        cmd = cmd.replace(' ~/', ' '+os.path.expanduser('~/'))
+
         print(cmd)
         try:
-            subprocess.check_output(
+            res = subprocess.check_output(
                 cmd, shell=True, cwd=TestHelper.sandbox,
                 env=env
             )
+            return res
         except subprocess.CalledProcessError as err:
             raise AssertionError(
                 'Command did not return 0. Returned '+str(err.returncode)+

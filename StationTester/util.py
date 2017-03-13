@@ -119,3 +119,15 @@ def read_params(filename):
     with open(filename) as fp:
         cfg.read_file(itertools.chain(['[global]'], fp), source=filename)
     return cfg['global']
+
+def read_paramstring(paramstring):
+    """ reads param key-val pairs from given string """
+    cfg = configparser.ConfigParser()
+    paramstring = "[global]\n" + paramstring
+
+    cfg.read_string(paramstring)
+    # if < py3:
+    # buf = StringIO.StringIO(paramstring)
+    # cfg.readfp(buf)
+
+    return cfg['global']
