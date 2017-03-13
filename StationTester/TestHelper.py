@@ -68,7 +68,8 @@ class TestHelper:
             )
         except subprocess.CalledProcessError as err:
             raise AssertionError(
-                'Command did not return 0. \nCaptured command output below (WARN: may be incomplete):\n\n'
+                'Command did not return 0. Returned '+str(err.returncode)+
+                '\nCaptured command output below (WARN: may be incomplete):\n\n'
                 + err.output.decode("ascii")+'\n\n'
             )
 
