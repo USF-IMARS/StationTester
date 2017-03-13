@@ -58,9 +58,9 @@ class TestHelper:
         TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
 
     @staticmethod
-    def check_cmd(cmd, env):
+    def check_cmd(cmd, env=None):
         """ runs given command, expects command to return 0 """
-        cmd = cmd.replace(' ~/', ' '+os.path.expanduser('~/'))
+        cmd = cmd.replace('~/', os.path.expanduser('~/'))
 
         print(cmd)
         try:
@@ -68,7 +68,7 @@ class TestHelper:
                 cmd, shell=True, cwd=TestHelper.sandbox,
                 env=env
             )
-            return res
+            return res.decode("ascii")
         except subprocess.CalledProcessError as err:
             raise AssertionError(
                 'Command did not return 0. Returned '+str(err.returncode)+
