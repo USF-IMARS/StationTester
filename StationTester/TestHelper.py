@@ -7,6 +7,8 @@ import os
 import shutil
 import subprocess
 
+from StationTester import util
+
 class TestHelper:
     stationTestDir = os.path.expanduser("~/drl/StationTester")
     wrapper_home = os.path.join(stationTestDir, "wrapper/lib")
@@ -140,6 +142,11 @@ class TestHelper:
     def sandbox_file(filename):
         """returns full path to file in sandbox"""
         return os.path.join(TestHelper.sandbox, filename)
+
+    @staticmethod
+    def input_file(filename):
+        """returns full path to input file in test_data"""
+        return os.path.join(TestHelper.testindir, filename)
 
     @staticmethod
     def _expect_empty_errfiles(testClass, errfiles, directory=None):
