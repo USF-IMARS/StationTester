@@ -59,10 +59,10 @@ class TestHelper:
     @staticmethod
     def check_cmd(cmd):
         """ runs given command, expects command to return 0 """
-        print(command)
+        print(cmd)
         try:
             subprocess.check_output(
-                command, shell=True, cwd=TestHelper.sandbox
+                cmd, shell=True, cwd=TestHelper.sandbox
             )
         except subprocess.CalledProcessError as err:
             raise AssertionError(
