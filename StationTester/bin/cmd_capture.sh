@@ -1,5 +1,5 @@
 # Attempt at automating test-building process for extant stations.
-# In its current form this will NOT work. Instead copy the commands individually
+# In its current form this will NOT work. Copy these commands individually
 # for now.
 
 PACKAGE_NAME=imars
@@ -44,6 +44,26 @@ stdbuf -o0 ~/drl/ncs/stations/$STATION_NAME/jsw/bin/wrapper.sh console 2>&1 | te
 
 # get cmd list out of full output.
 grep cmd $FULL_OUT_FILE > $CMD_LIST_FILE
+
+# TODO: capture env vars set like MODIS_DB_HOME below:
+    # jvm 1    | ---Debug---> Ncs_run
+    # jvm 1    | cmd	 = 	/home/ipopp/drl/SPA/seadas7.3/wrapper/oc/DayNight.sh /home/ipopp/drl/data/pub/gsfcdata/terra/modis/level1/MOD03.17047153000.hdf
+    # jvm 1    | nice	 = 	true
+    # jvm 1    | killwrapper	 = 	true
+    # jvm 1    | standardFile	 = 	stdfile_DayNightCheck
+    # jvm 1    | errorFile	 = 	errfile_DayNightCheck
+    # jvm 1    | returnValue	 =
+    # jvm 1    | directory	 =
+    # jvm 1    | name	 = 	MODIS_DB_HOME
+    # jvm 1    | value	 = 	/home/ipopp/drl/SPA/seadas7.3/wrapper/oc/../../algorithm
+    # jvm 1    | Beginning execution in directory:
+    # jvm 1    | 	/home/ipopp/drl/ncs/stations/modis_oc/RUN.170313-174253
+    # jvm 1    | Awaiting completion
+    # jvm 1    | Return code was: 0
+    # jvm 1    |
+    # jvm 1    | ---command complete
+# NOTE: could use something like `grep -B 15 -A 15 MODIS_DB_HOME $FULL_OUT_FILE`
+
 
 # TODO: do something with commands?
 mv $CMD_LIST_FILE ~/drl/SPA/$PACKAGE_NAME/station/$STATION_NAME/.

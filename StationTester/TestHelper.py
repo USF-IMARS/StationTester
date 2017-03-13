@@ -49,6 +49,16 @@ class TestHelper:
         command = command.replace(' ~/', ' '+os.path.expanduser('~/'))
 
         # run command:
+        TestHelper.check_cmd(command)
+
+        # perform checks:
+        TestHelper._expect_empty_errfiles(testClass, errfiles)
+        TestHelper._expect_files(testClass, expected_files, TestHelper.sandbox)
+        TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
+
+    @staticmethod
+    def check_cmd(cmd):
+        """ runs given command, expects command to return 0 """
         print(command)
         try:
             subprocess.check_output(
@@ -59,11 +69,6 @@ class TestHelper:
                 'Command did not return 0. \nCaptured command output below (WARN: may be incomplete):\n\n'
                 + err.output.decode("ascii")+'\n\n'
             )
-
-        # perform checks:
-        TestHelper._expect_empty_errfiles(testClass, errfiles)
-        TestHelper._expect_files(testClass, expected_files, TestHelper.sandbox)
-        TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
 
     @staticmethod
     def _del_testdata_out():

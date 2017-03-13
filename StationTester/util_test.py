@@ -9,7 +9,7 @@ import unittest
 # dependencies:
 from StationTester import util
 
-class Test_TEST_CASE_NAME(unittest.TestCase):
+class Test_util_basic_tests(unittest.TestCase):
 
     # tests:
     #########################
