@@ -1,10 +1,85 @@
-Installation:
+# Installation:
 
 `python setup.py install`
 or
 `python setup.py develop`
 
-For example usage see `new_test_template.py`.
+# Usage
+For example usage also see `new_test_template.py`.
+
+```python
+def test_paramstring_from_stdout(self):
+    """ tests param string coming from stdout (or stderr) """
+
+    result = TestHelper.check_cmd(
+        "blah/blah/command_blah.sh -1 args -a blah.blah"
+    )
+
+    # expects output to be `param_1_key=expected_param_1_value`
+    self.assertDictContainsSubset(
+        util.read_paramstring(result.stdout.decode('ascii')),
+        {"param_1_key":"expected_param_1_value")}
+    )
+
+
+def test_stdout_for_substrings(self):
+    """
+    tests stdout (or stderr) for specific substrings
+    """
+    result = TestHelper.check_cmd(
+        "blah/blah/command_blah.sh -1 args -a blah.blah"
+    )
+    outstr = result.stdout.decode("ascii")
+
+    # assert expected_substr in stdout/stderr
+    expected_substr = "program successful!"
+    self.assertTrue(
+        expected_substr in outstr,
+        outstr+"\n\nexpected str \"" + str(expected) + "\" not found in stdout (above)."
+    )
+
+    # assert substring not in stdout/stderr
+    expected_errStr = "java.io.FileNotFoundException:"
+    self.assertFalse(
+        expected_errStr in outstr,
+        outstr+"\n\nprogram throws FileNotFoundException (see above)"
+    )
+
+def test_output_paramfile(self):
+    """ tests paramfile contents created by test """
+    # run test cmd
+    TestHelper.check_cmd(
+        "blah/blah/command_blah.sh -1 args -a blah.blah"
+    )
+
+    # check MyProgramFile.txt has been created and contains "param_1=abc123"
+    TestHelper.expect_params_in_file(
+        self,
+        TestHelper.sandbox_file("MyProgramFile.txt"),
+        {"param_1":"abc123"}
+    )
+
+def test_using_SPA_command(self):
+    """ runs commmand, checks that `products` exist, and `errfiles` are empty """
+    TestHelper.SPA_command( self,
+        (
+            ' blah/blah/command_blah.sh'
+            ' -1 args -a blah.blah'
+            ' --myprograminfile  $OUTPUT/myProgramOutput.txt'
+            ' --myprogramoutfile $INPUT/myProgramInput.txt'
+        ),
+        products=['myProgramOutput.txt', 'myProgramOutput2.csv'],
+        errfiles=['myProgram_errfile', 'myProgramErrlog.txt'],
+    )
+```
+
+# Test Attributes
+Supported attributes are:
+
+```python
+@attr(length='100')  # approx length of test in seconds
+@attr('slow')       # test is slow to run ( length is > 30 )
+```
 
 
 ## Tips on Making Tests for extant SPAs
