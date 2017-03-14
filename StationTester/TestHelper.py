@@ -58,17 +58,26 @@ class TestHelper:
         TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
 
     @staticmethod
-    def check_cmd(cmd, env=None):
-        """ runs given command, expects command to return 0 """
+    def check_cmd(cmd, env=None, bufsize=-1, stdbuf=False):
+        """
+        runs given command, expects command to return 0.
+        cmd is expected to be a string.
+
+        set bufsize=1 or bufsize=0 or stdbuf=True if stdout is not capturing.
+        """
         cmd = cmd.replace('~/', os.path.expanduser('~/'))
+
+        if (stdbuf):
+            cmd = "stdbuf -o0 -e0 " + cmd
 
         print(cmd)
         try:
-            res = subprocess.check_output(
-                cmd, shell=True, cwd=TestHelper.sandbox,
-                env=env
+            res = subprocess.run(
+                cmd,
+                check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                shell=True, cwd=TestHelper.sandbox, env=env, bufsize=bufsize,
             )
-            return res.decode("ascii")
+            return res
         except subprocess.CalledProcessError as err:
             raise AssertionError(
                 'Command did not return 0. Returned '+str(err.returncode)+
