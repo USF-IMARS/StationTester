@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 static helper class (common w/ other test classes) with useful methods like
 file cleanup and errfile checking.

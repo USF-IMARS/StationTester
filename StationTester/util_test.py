@@ -38,4 +38,4 @@ class Test_util_basic_tests(unittest.TestCase):
         self.assertDictContainsSubset(
             {"needed_files":"~/level2/terra.OC.17047153500.hdf"},
             res
-        )
+        )        

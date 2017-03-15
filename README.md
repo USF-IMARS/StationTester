@@ -5,6 +5,23 @@ or
 `python setup.py develop`
 
 # Usage
+
+## Test Runner
+The TestRunner module encapsulates the running of many SPA tests via nosetest.
+ Basic usage looks like:
+
+```bash
+$ ./StationTester/TestRunner.py
+```
+
+```python
+tester = TestRunner()
+tester.test_all_SPAs()
+```
+
+## Test Helper
+The TestHelper module is intended to help with writing of SPA station tests.
+
 For example usage also see `new_test_template.py`.
 
 ```python
@@ -73,7 +90,7 @@ def test_using_SPA_command(self):
     )
 ```
 
-# Test Attributes
+### Test Attributes
 Supported attributes are:
 
 ```python
