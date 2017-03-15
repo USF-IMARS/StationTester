@@ -34,7 +34,13 @@ class TestRunner:
         test_str = test_str[:-1]  # chop off last comma
         # print ("\n\ntest_str: ", test_str)
 
-        nose.run(defaultTest=test_str)
+        arguments=[
+            os.path.abspath(__file__),
+            '--tests=' + test_str
+        ]
+        arguments.extend(self.args.nose_args)
+        result = nose.main(argv=arguments)
+        # nose.run(defaultTest=test_str)
 
     @nottest
     def get_all_tests(self, verbose=None):
@@ -73,15 +79,26 @@ class TestRunner:
                     print("|- setup.cfg")
                     [print("|---- ", test) for test in testlist ]
             except KeyError as k_err:
-                print("\nWARN: no setup.cfg for \"", os.path.basename(SPA), "\".\n")
+                print("\nWARN: no setup.cfg for \"", os.path.basename(SPA), "\"")
 
         return tests
 
 if __name__ == "__main__":
     #parser = argparse.ArgumentParser(description='run tests across all SPAs')
     parser = argparse.ArgumentParser()
+    # NOTE: careful not to accidentally overload nose arguments here
+    #       (also see note below)
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
-                        action="store_true")
-    args = parser.parse_args()
+                        action="store_true"
+    )
+
+    # this allows passthrough of remaining args to nose
+    args, unknownargs = parser.parse_known_args()
+    args.nose_args = unknownargs
+    # NOTE: must manually pass through args that were captured above and
+    #       not passed to nose. Try to minimalize this overlap since there will
+    #       be no way to pass the arg to one without also passing to the other.
+    unknownargs.verbose = args.verbose
+
     tester = TestRunner(args)
     tester.test_all_SPAs()
