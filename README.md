@@ -25,6 +25,20 @@ The TestHelper module is intended to help with writing of SPA station tests.
 For example usage also see `new_test_template.py`.
 
 ```python
+
+def test_using_SPA_command(self):
+    """ runs station via IPOPP wrapper, checks that `products` exist, and `errfiles` are empty """
+    TestHelper.SPA_command( self,
+        (
+            ' mySPAName/wrapper/myStationName'
+            ' -1 args -a blah.blah'
+            ' --myprograminfile  $OUTPUT/myProgramOutput.txt'
+            ' --myprogramoutfile $INPUT/myProgramInput.txt'
+        ),
+        products=['myProgramOutput.txt', 'myProgramOutput2.csv'],
+        errfiles=['myProgram_errfile', 'myProgramErrlog.txt'],
+    )
+    
 def test_paramstring_from_stdout(self):
     """ tests param string coming from stdout (or stderr) """
 
@@ -74,19 +88,6 @@ def test_output_paramfile(self):
         self,
         TestHelper.sandbox_file("MyProgramFile.txt"),
         {"param_1":"abc123"}
-    )
-
-def test_using_SPA_command(self):
-    """ runs commmand, checks that `products` exist, and `errfiles` are empty """
-    TestHelper.SPA_command( self,
-        (
-            ' blah/blah/command_blah.sh'
-            ' -1 args -a blah.blah'
-            ' --myprograminfile  $OUTPUT/myProgramOutput.txt'
-            ' --myprogramoutfile $INPUT/myProgramInput.txt'
-        ),
-        products=['myProgramOutput.txt', 'myProgramOutput2.csv'],
-        errfiles=['myProgram_errfile', 'myProgramErrlog.txt'],
     )
 ```
 
