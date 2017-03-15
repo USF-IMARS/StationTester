@@ -57,7 +57,7 @@ class TestHelper:
         TestHelper._expect_empty_errfiles(testClass, errfiles)
         TestHelper._expect_files(testClass, expected_files, TestHelper.sandbox)
         TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
-        
+
         return result
 
     @staticmethod
@@ -132,7 +132,7 @@ class TestHelper:
 
     @staticmethod
     def _expect_files(testClass, files, directory):
-        # assert non-empty files exist at given directory
+        """ assert non-empty files exist at given directory """
         for fff in files:
             # print(errfile, '?')
             path=os.path.join(directory, fff)
@@ -166,7 +166,7 @@ class TestHelper:
 
     @staticmethod
     def _expect_empty_errfiles(testClass, errfiles, directory=None):
-        # assert no errs in errfiles
+        """ assert no errs in errfiles """
         if (directory is None):
             directory = TestHelper.sandbox
         for errfile in errfiles:
@@ -180,4 +180,27 @@ class TestHelper:
                 is_empty,
                 'errfile "' + errfile + '" not empty. \n\t\t'
                     'Moved to ' + TestHelper.err_file_box + ' for manual inspection.'
+            )
+
+    @staticmethod
+    def expect_substr_in_outstr(testClass, substr, result, n=1, _not=False):
+        """
+        asserts given substr is in given result.stdout
+
+        n: number of times cmdstr should be expected
+        _not: expect substr is NOT in result.stdout
+        """
+
+        outstr = result.stdout.decode("ascii")
+        n_actual = outstr.count(substr)
+
+        if _not:
+            testClass.assertFalse(
+                n_actual > 0,
+                outstr + "\n\nunwanted substr \"" + substr + "\" found in stdout (above)"
+            )
+        else:
+            testClass.assertEqual(
+                n, n_actual,
+                outstr + "\n\nsubstr " + substr + " found in stdout (above) " + str(n_actual) + "/" + str(n) + " times."
             )

@@ -38,7 +38,7 @@ def test_using_SPA_command(self):
         products=['myProgramOutput.txt', 'myProgramOutput2.csv'],
         errfiles=['myProgram_errfile', 'myProgramErrlog.txt'],
     )
-    
+
 def test_paramstring_from_stdout(self):
     """ tests param string coming from stdout (or stderr) """
 
@@ -60,20 +60,28 @@ def test_stdout_for_substrings(self):
     result = TestHelper.check_cmd(
         "blah/blah/command_blah.sh -1 args -a blah.blah"
     )
-    outstr = result.stdout.decode("ascii")
 
-    # assert expected_substr in stdout/stderr
-    expected_substr = "program successful!"
-    self.assertTrue(
-        expected_substr in outstr,
-        outstr+"\n\nexpected str \"" + str(expected) + "\" not found in stdout (above)."
+    # assert expected_substr in stdout/stderr:
+    TestHelper.expect_substr_in_outstr(
+        self,
+        "my expected\tsub/`~'\"'`string",
+        result
     )
 
-    # assert substring not in stdout/stderr
-    expected_errStr = "java.io.FileNotFoundException:"
-    self.assertFalse(
-        expected_errStr in outstr,
-        outstr+"\n\nprogram throws FileNotFoundException (see above)"
+    # assert substring not in stdout/stderr:
+    TestHelper.expect_substr_in_outstr(
+        self,
+        "my unexpected\tERROR/`~'\"'`string",
+        result,
+        _not=True
+    )
+
+    # assert expected_substr in stdout/stderr 7 times:
+    TestHelper.expect_substr_in_outstr(
+        self,
+        "my expected\tsub/`~'\"'`string",
+        result,
+        n=7
     )
 
 def test_output_paramfile(self):
