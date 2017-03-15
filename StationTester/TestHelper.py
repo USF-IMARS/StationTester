@@ -51,12 +51,14 @@ class TestHelper:
         command = command.replace('$OUTPUT', TestHelper.testoutdir)
 
         # run command:
-        TestHelper.check_cmd(command)
+        result = TestHelper.check_cmd(command)
 
         # perform checks:
         TestHelper._expect_empty_errfiles(testClass, errfiles)
         TestHelper._expect_files(testClass, expected_files, TestHelper.sandbox)
         TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
+        
+        return result
 
     @staticmethod
     def check_cmd(cmd, env=None, bufsize=-1, stdbuf=False):
