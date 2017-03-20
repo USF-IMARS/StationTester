@@ -17,8 +17,9 @@ but may be useful in the future.
 
 import os
 import json  # for pretty printing
-import xml.etree.ElementTree
 import configparser, itertools  # for param reading
+
+from StationTester.CFGFileReader import CFGFileReader
 
 SPA_DIR=os.path.expanduser("~/drl/SPA")
 
@@ -74,59 +75,9 @@ def get_dependencies(package, station, verbose=False, skip_errors=False):
     )
 
     if(verbose): print('loading ', station_path, '...')
-    station_tree = xml.etree.ElementTree.parse(station_path)
-    station_root = station_tree.getroot()
-    station_setup = station_root.find('SETUP')
+    cfgfile = CFGFileReader(station_path)
 
-    # get loaded algorithms
-    sub_station_programs = []
-    for alg in station_setup.findall('InitAlgorithm'):
-        if(verbose): print('\treading InitAlg for ', alg.get('result'))
-        filepath = alg.get('file')
-        filepath = filepath.format(
-            cfg_nisgs_home=os.path.expanduser('~/drl'),
-            spa_dir=SPA_DIR
-        )
-        sub_station_programs.append(filepath)
-
-    deps=dict()
-    for sub_station_file in sub_station_programs:
-        if(verbose): print('\t\tloading ', sub_station_file, '...')
-        try:
-            sub_station_tree = xml.etree.ElementTree.parse(sub_station_file)
-            sub_station_root = sub_station_tree.getroot()
-            for executable in sub_station_root.findall('Executables'):  # should only be one, but findall just in case
-                for child in executable:
-                    if(verbose): print('\t\t\t', child.text)
-                    _addDepToDict(deps, child.tag, child.text)
-        except FileNotFoundError as err:
-            if(skip_errors):
-                print(
-                    "\n\nERROR: required substation file not found:\n",
-                    sub_station_file, "\n\n"
-                )
-            else:
-                raise FileNotFoundError
-
-    # get direct calls to Ncs_run
-    station_exec = station_root.find('EXECUTE')
-    for runblock in station_exec.findall('Ncs_run'):
-        if (verbose): print('.\r')
-        dep = runblock.get('cmd').split()[0]
-        key = dep.split('{/}')[-1]
-        _addDepToDict(deps, key, dep)
-    if (verbose): print('\n')
-
-
-    return deps
-
-def _addDepToDict(deps, newdepkey, newdepval):
-    # adds dependency to dict, checks to ensure it doesn't exist first
-    try:
-        test = deps[newdepkey]  # should throw exception
-        raise AssertionError("duplicate key detected in dep list")
-    except KeyError:
-        deps[newdepkey] = newdepval
+    return cfgfile.get_station_programs()
 
 def read_params(filename):
     """
