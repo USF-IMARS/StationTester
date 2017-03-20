@@ -3,6 +3,7 @@
 tests station graphing functionality
 """
 
+import argparse
 import networkx as netx
 
 from StationTester.CFGFileReader import CFGFileReader
@@ -33,6 +34,24 @@ class Grapher(object):
         for outflow in cfgfile.get_outflows():
             self.graph.add_edge(stationName, outflow)
 
-    def save(filepath):
+    def save(self, filepath):
         """ saves graph at given filepath """
         netx.write_gexf(self.graph, filepath)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='graph SPA station(s) in/outflows')
+
+    parser.add_argument("packageName", help="name of package to graph")
+    parser.add_argument("stationName", help="name of station to graph")
+    parser.add_argument("outfile", help="file to save output")
+    parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                        action="store_true"
+    )
+
+    args = parser.parse_args()
+
+    graph = Grapher()
+    graph.graph_station(args.packageName, args.stationName)
+    graph.save(args.outfile)
+    print(".gexf file saved. Open w/ gephi (or other) to view.")
