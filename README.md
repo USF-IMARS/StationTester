@@ -20,16 +20,16 @@ tester.test_all_SPAs()
 ```
 
 ## Test Helper
-The TestHelper module is intended to help with writing of SPA station tests.
+The test_helper module is intended to help with writing of SPA station tests.
 
 For example usage also see `new_test_template.py`.
 
 ```python
-from StationTester import path_helper, TestHelper.TestHelper as TestHelper
+from StationTester import path_helper, test_helper
 
 def test_using_SPA_command(self):
     """ runs station via IPOPP wrapper, checks that `products` exist, and `errfiles` are empty """
-    TestHelper.SPA_command( self,
+    test_helper.SPA_command( self,
         (
             ' mySPAName/wrapper/myStationName'
             ' -1 args -a blah.blah'
@@ -43,7 +43,7 @@ def test_using_SPA_command(self):
 def test_paramstring_from_stdout(self):
     """ tests param string coming from stdout (or stderr) """
 
-    result = TestHelper.check_cmd(
+    result = test_helper.check_cmd(
         "blah/blah/command_blah.sh -1 args -a blah.blah"
     )
 
@@ -58,19 +58,19 @@ def test_stdout_for_substrings(self):
     """
     tests stdout (or stderr) for specific substrings
     """
-    result = TestHelper.check_cmd(
+    result = test_helper.check_cmd(
         "blah/blah/command_blah.sh -1 args -a blah.blah"
     )
 
     # assert expected_substr in stdout/stderr:
-    TestHelper.expect_substr_in_outstr(
+    test_helper.expect_substr_in_outstr(
         self,
         "my expected\tsub/`~'\"'`string",
         result
     )
 
     # assert substring not in stdout/stderr:
-    TestHelper.expect_substr_in_outstr(
+    test_helper.expect_substr_in_outstr(
         self,
         "my unexpected\tERROR/`~'\"'`string",
         result,
@@ -78,7 +78,7 @@ def test_stdout_for_substrings(self):
     )
 
     # assert expected_substr in stdout/stderr 7 times:
-    TestHelper.expect_substr_in_outstr(
+    test_helper.expect_substr_in_outstr(
         self,
         "my expected\tsub/`~'\"'`string",
         result,
@@ -88,12 +88,12 @@ def test_stdout_for_substrings(self):
 def test_output_paramfile(self):
     """ tests paramfile contents created by test """
     # run test cmd
-    TestHelper.check_cmd(
+    test_helper.check_cmd(
         "blah/blah/command_blah.sh -1 args -a blah.blah"
     )
 
     # check MyProgramFile.txt has been created and contains "param_1=abc123"
-    TestHelper.expect_params_in_file(
+    test_helper.expect_params_in_file(
         self,
         path_helper.sandbox_file("MyProgramFile.txt"),
         {"param_1":"abc123"}
@@ -132,11 +132,11 @@ Check the SPA's `generic.xml` for something like this example from `modisl1db/l0
 </Outputs>
 ```
 
-These are the values you may want to pass using `TestHelper.SPA_command`.
+These are the values you may want to pass using `test_helper.SPA_command`.
 Example usage for `modisl1db/l0tol1`:
 
 ```python
-TestHelper.SPA_command( self,
+test_helper.SPA_command( self,
             (
                 ' ../wrapper/l0tol1'
                 ' modis.pds $INPUT/P0420064AAAAAAAAAAAAAA12249171145001.PDS'

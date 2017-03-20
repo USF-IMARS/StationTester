@@ -8,8 +8,7 @@ import os
 import unittest
 
 # dependencies:
-from StationTester import util, path_helper
-from StationTester.TestHelper import TestHelper
+from StationTester import util, path_helper, test_helper
 import configparser
 
 class Test_util_basic_tests(unittest.TestCase):

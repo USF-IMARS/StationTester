@@ -13,8 +13,7 @@ import configparser
 import argparse
 import os
 
-from StationTester import util, path_helper
-from StationTester.TestHelper import TestHelper
+from StationTester import util, path_helper, test_helper
 
 class TestRunner:
 

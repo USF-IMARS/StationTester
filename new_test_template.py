@@ -10,15 +10,15 @@ TEST_NAME, and TEST_DESCRIPTION.
 import unittest
 
 # dependencies:
-from StationTester.TestHelper import TestHelper
+from StationTester import test_helper
 
 class Test_TEST_CASE_NAME(unittest.TestCase):
 
     def setUp(self):
-        TestHelper.mySetup()
+        test_helper.mySetup()
 
     def tearDown(self):
-        TestHelper.myTeardown()
+        test_helper.myTeardown()
 
     # tests:
     #########################
