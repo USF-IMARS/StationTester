@@ -8,13 +8,7 @@ import os
 import shutil
 import subprocess
 
-from StationTester import util, path_helper
-
-# set _should_clean=False to *NOT* clean output files after each test.
-# Useful for manual file checking, but also dangerous b/c not cleaning up
-# may cause failing code to pass tests. So just remember to set it back to
-# True when you're done.
-_should_clean = True  # should (usually) be True!
+from StationTester import util, path_helper, test_cleaner
 
 def SPA_command(
         testClass,
@@ -76,40 +70,19 @@ def check_cmd(cmd, env=None, bufsize=-1, stdbuf=False):
             + err.output.decode("ascii")+'\n\n'
         )
 
-def _del_testdata_out():
-    print("rm test output...")
-    filelist = [ f for f in os.listdir(path_helper._outdir) ]
-    for f in filelist:
-        os.remove(os.path.join(path_helper._outdir, f))
-
-def _clean_sandbox():
-    for f in [ fi for fi in os.listdir(path_helper._sandbox)]:
-        path = os.path.join(path_helper._sandbox, f)
-        try :
-            os.remove( path )
-        except IsADirectoryError:
-            shutil.rmtree( path )
-
 def file_is_empty(filename):
     return os.stat(filename).st_size == 0
 
 def file_not_empty(filename):
     return os.stat(filename).st_size > 0
 
-def clean():
-    if (_should_clean):
-        _del_testdata_out()
-        _clean_sandbox()
-    else:
-        print("WARN: Not cleaning can cause tests to pass erroneously!")
-
 def SPATestSetUp():
-    clean()
+    test_cleaner.clean()
     print ("test setup complete.")
 
 def SPATestTearDown():
     print ("clean up after test...")
-    clean()
+    test_cleaner.clean()
 
 def _expect_files(testClass, files, directory):
     """ assert non-empty files exist at given directory """
