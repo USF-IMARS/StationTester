@@ -13,7 +13,7 @@ import configparser
 import argparse
 import os
 
-from StationTester import util
+from StationTester import util, path_helper
 from StationTester.TestHelper import TestHelper
 
 class TestRunner:
@@ -47,7 +47,7 @@ class TestRunner:
         if (verbose is None): verbose = self.args.verbose
 
         # create list of all tests:
-        tests = [TestHelper.stationTestDir]  # starting w/ self tests
+        tests = [path_helper.stationTestDir]  # starting w/ self tests
         for SPA in util.get_packages():
             if verbose: print("| ", SPA)
             tests.append(os.path.join(util.SPA_DIR, SPA))  # root of SPA

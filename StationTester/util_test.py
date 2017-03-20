@@ -8,7 +8,7 @@ import os
 import unittest
 
 # dependencies:
-from StationTester import util
+from StationTester import util, path_helper
 from StationTester.TestHelper import TestHelper
 import configparser
 
@@ -25,7 +25,7 @@ class Test_util_basic_tests(unittest.TestCase):
 
     def test_read_params(self):
         params = util.read_params(
-            os.path.join(TestHelper.testindir, 'test_config.ini')
+            os.path.join(path_helper.testindir, 'test_config.ini')
         )
         print(params)
         self.assertEqual(params['test1'], 'apple')
@@ -38,4 +38,4 @@ class Test_util_basic_tests(unittest.TestCase):
         self.assertDictContainsSubset(
             {"needed_files":"~/level2/terra.OC.17047153500.hdf"},
             res
-        )        
+        )

@@ -8,17 +8,9 @@ import os
 import shutil
 import subprocess
 
-from StationTester import util
+from StationTester import util, path_helper
 
 class TestHelper:
-    stationTestDir = os.path.expanduser("~/drl/StationTester")
-    wrapper_home = os.path.join(stationTestDir, "wrapper/lib")
-    testoutdir   = os.path.join(stationTestDir, "test_data/output")
-    testindir    = os.path.join(stationTestDir, "test_data/input")
-    sandbox      = os.path.join(stationTestDir, "test_data/sandbox")
-    err_file_box = os.path.join(stationTestDir, "test_data/err_files")
-    testscriptdir = "./"
-    FNULL = open(os.devnull, 'w')
 
     # set _should_clean=False to *NOT* clean output files after each test.
     # Useful for manual file checking, but also dangerous b/c not cleaning up
@@ -46,9 +38,9 @@ class TestHelper:
         errfiles : list of files expected to be empty after running command.
         """
         # prep command:
-        command = TestHelper.wrapper_home+'/run ' + command
-        command = command.replace('$INPUT', TestHelper.testindir)
-        command = command.replace('$OUTPUT', TestHelper.testoutdir)
+        command = path_helper.wrapper_home+'/run ' + command
+        command = command.replace('$INPUT', path_helper.testindir)
+        command = command.replace('$OUTPUT', path_helper.testoutdir)
 
         # run command:
         result = TestHelper.check_cmd(command)
@@ -56,7 +48,7 @@ class TestHelper:
         # perform checks:
         TestHelper._expect_empty_errfiles(testClass, errfiles)
         TestHelper._expect_files(testClass, expected_files, TestHelper.sandbox)
-        TestHelper._expect_files(testClass, products, TestHelper.testoutdir)
+        TestHelper._expect_files(testClass, products, path_helper.testoutdir)
 
         return result
 
@@ -78,7 +70,7 @@ class TestHelper:
             res = subprocess.run(
                 cmd,
                 check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                shell=True, cwd=TestHelper.sandbox, env=env, bufsize=bufsize,
+                shell=True, cwd=path_helper.sandbox, env=env, bufsize=bufsize,
             )
             return res
         except subprocess.CalledProcessError as err:
@@ -91,14 +83,14 @@ class TestHelper:
     @staticmethod
     def _del_testdata_out():
         print("rm test output...")
-        filelist = [ f for f in os.listdir(TestHelper.testoutdir) ]
+        filelist = [ f for f in os.listdir(path_helper.testoutdir) ]
         for f in filelist:
-            os.remove(os.path.join(TestHelper.testoutdir, f))
+            os.remove(os.path.join(path_helper.testoutdir, f))
 
     @staticmethod
     def _clean_sandbox():
-        for f in [ fi for fi in os.listdir(TestHelper.sandbox)]:
-            path = os.path.join(TestHelper.sandbox, f)
+        for f in [ fi for fi in os.listdir(path_helper.sandbox)]:
+            path = os.path.join(path_helper.sandbox, f)
             try :
                 os.remove( path )
             except IsADirectoryError:
@@ -157,29 +149,29 @@ class TestHelper:
     @staticmethod
     def sandbox_file(filename):
         """returns full path to file in sandbox"""
-        return os.path.join(TestHelper.sandbox, filename)
+        return os.path.join(path_helper.sandbox, filename)
 
     @staticmethod
     def input_file(filename):
         """returns full path to input file in test_data"""
-        return os.path.join(TestHelper.testindir, filename)
+        return os.path.join(path_helper.testindir, filename)
 
     @staticmethod
     def _expect_empty_errfiles(testClass, errfiles, directory=None):
         """ assert no errs in errfiles """
         if (directory is None):
-            directory = TestHelper.sandbox
+            directory = path_helper.sandbox
         for errfile in errfiles:
             # print(errfile, '?')
             path = os.path.join(directory, errfile)
             is_empty = TestHelper.file_is_empty(path)
             if (not is_empty):
-                os.rename(path, os.path.join(TestHelper.err_file_box, errfile))
+                os.rename(path, os.path.join(path_helper.err_file_box, errfile))
 
             testClass.assertTrue(
                 is_empty,
                 'errfile "' + errfile + '" not empty. \n\t\t'
-                    'Moved to ' + TestHelper.err_file_box + ' for manual inspection.'
+                    'Moved to ' + path_helper.err_file_box + ' for manual inspection.'
             )
 
     @staticmethod

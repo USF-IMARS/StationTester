@@ -47,7 +47,7 @@ grep cmd $FULL_OUT_FILE > $CMD_LIST_FILE
 
 # TODO: capture env vars set like MODIS_DB_HOME below:
     # jvm 1    | ---Debug---> Ncs_run
-    # jvm 1    | cmd	 = 	/home/ipopp/drl/SPA/seadas7.3/wrapper/oc/DayNight.sh /home/ipopp/drl/data/pub/gsfcdata/terra/modis/level1/MOD03.17047153000.hdf
+    # jvm 1    | cmd	 = 	~/drl/SPA/seadas7.3/wrapper/oc/DayNight.sh ~/drl/data/pub/gsfcdata/terra/modis/level1/MOD03.17047153000.hdf
     # jvm 1    | nice	 = 	true
     # jvm 1    | killwrapper	 = 	true
     # jvm 1    | standardFile	 = 	stdfile_DayNightCheck
@@ -55,9 +55,9 @@ grep cmd $FULL_OUT_FILE > $CMD_LIST_FILE
     # jvm 1    | returnValue	 =
     # jvm 1    | directory	 =
     # jvm 1    | name	 = 	MODIS_DB_HOME
-    # jvm 1    | value	 = 	/home/ipopp/drl/SPA/seadas7.3/wrapper/oc/../../algorithm
+    # jvm 1    | value	 = 	~/drl/SPA/seadas7.3/wrapper/oc/../../algorithm
     # jvm 1    | Beginning execution in directory:
-    # jvm 1    | 	/home/ipopp/drl/ncs/stations/modis_oc/RUN.170313-174253
+    # jvm 1    | 	~/drl/ncs/stations/modis_oc/RUN.170313-174253
     # jvm 1    | Awaiting completion
     # jvm 1    | Return code was: 0
     # jvm 1    |
