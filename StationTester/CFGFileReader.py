@@ -70,12 +70,18 @@ class CFGFileReader(object):
     def get_inflows(self):
         """
         returns list of station inflow products by searching for xml of the
-            following form:
+            following forms:
 
             ```xml
+            <!-- form 1 : reserveProductLikeProductType -->
             <Dsm_command class="DSM" method="reserveProductLikeProductType">
                 <String value="imars.%.mapped.png"/>
                 <String value="imars.%.mapped"/>
+            </Dsm_command>
+
+            <!-- form 2 : reserveProduct -->
+            <Dsm_command class="DSM" method="reserveProduct">
+                <String value="drl.aqua.modis.pds"/>
             </Dsm_command>
             ```
 
@@ -83,11 +89,14 @@ class CFGFileReader(object):
         not assume that, but will print a warning if it finds more than one.
         """
         inflows = []
+        xpath_queries = [
+        ".//Dsm_command/[@method='reserveProductLikeProductType']",
+        ".//Dsm_command/[@method='reserveProduct']"
+        ]
 
-        xpath_query = ".//Dsm_command/[@method='reserveProductLikeProductType']"
-        for reservation in self.EXECUTE.findall(xpath_query):
-            for product in reservation:
-                inflows.append(product.get("value"))
+        for query in xpath_queries:
+            for reservation in self.EXECUTE.findall(query):
+                inflows.extend(product.get("value") for product in reservation)
 
         if len(inflows) > 1:
             print("\n\tWARN: cfgfile has multiple inflow products:", self.path, "\n")

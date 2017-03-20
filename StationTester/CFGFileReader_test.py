@@ -31,3 +31,13 @@ class Test_CFGFileReader(unittest.TestCase):
         expected = ['drl.aqua.modis.mxd01', 'drl.aqua.modis.mxd03']
 
         self.assertEqual(expected, actual)
+
+    def test_graph_modisl1db_l0l1aqua_inflows(self):
+        """
+        modisl1db l0l1aqua inflows = ['drl.aqua.modis.pds','{otherInputTypes}']
+        """
+        cfg = CFGFileReader(path_helper.cfg_path("modisl1db", "l0l1aqua"))
+        actual = cfg.get_inflows()
+        expected = ['drl.aqua.modis.pds','{otherInputTypes}']
+
+        self.assertEqual(expected, actual)

@@ -25,12 +25,12 @@ from StationTester import path_helper
 SPA_DIR=os.path.expanduser("~/drl/SPA")
 
 def get_packages(SPA_dir=SPA_DIR):
-    """returns SPAs dir names in (optional) SPA directory"""
+    """returns SPA names in (optional) SPA directory"""
     SPA_dir = os.path.expanduser(SPA_dir)
     return os.listdir(SPA_dir)
 
 def get_stations(package):
-    """returns stations dir names in given package"""
+    """returns stations names in given package"""
     try:
         stations_dir = path_helper.station_path(package, "")
         return os.listdir(stations_dir)

@@ -7,11 +7,18 @@ import argparse
 import networkx as netx
 
 from StationTester.CFGFileReader import CFGFileReader
-from StationTester import path_helper
+from StationTester import path_helper, util
 
 class Grapher(object):
     def __init__(self):
-        self.graph = netx.Graph()
+        self.graph = netx.DiGraph()
+
+    def graph_SPA(self, packageName):
+        """
+        produces graph of in/outfows for all stations in given SPA
+        """
+        for stationName in util.get_stations(packageName):
+            self.graph_station(packageName, stationName)
 
     def graph_station(self, packageName, stationName):
         """
@@ -43,15 +50,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='graph SPA station(s) in/outflows')
 
     parser.add_argument("packageName", help="name of package to graph")
-    parser.add_argument("stationName", help="name of station to graph")
-    parser.add_argument("outfile", help="file to save output")
+    parser.add_argument("-s", "--stationName", help="name of station to graph")
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true"
     )
+    parser.add_argument("outfile", help="file to save output")
 
     args = parser.parse_args()
 
     graph = Grapher()
-    graph.graph_station(args.packageName, args.stationName)
+    if (args.stationName is None):
+        graph.graph_SPA(args.packageName)
+    else:
+        graph.graph_station(args.packageName, args.stationName)
     graph.save(args.outfile)
     print(".gexf file saved. Open w/ gephi (or other) to view.")
