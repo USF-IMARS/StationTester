@@ -15,10 +15,10 @@ from StationTester import test_helper
 class Test_TEST_CASE_NAME(unittest.TestCase):
 
     def setUp(self):
-        test_helper.mySetup()
+        test_helper.SPATestSetUp()
 
     def tearDown(self):
-        test_helper.myTeardown()
+        test_helper.SPATestTearDown()
 
     # tests:
     #########################

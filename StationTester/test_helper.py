@@ -103,11 +103,11 @@ def clean():
     else:
         print("WARN: Not cleaning can cause tests to pass erroneously!")
 
-def mySetup():
+def SPATestSetUp():
     clean()
     print ("test setup complete.")
 
-def myTeardown():
+def SPATestTearDown():
     print ("clean up after test...")
     clean()
 
