@@ -20,6 +20,7 @@ import json  # for pretty printing
 import configparser, itertools  # for param reading
 
 from StationTester.CFGFileReader import CFGFileReader
+from StationTester import path_helper
 
 SPA_DIR=os.path.expanduser("~/drl/SPA")
 
@@ -31,7 +32,7 @@ def get_packages(SPA_dir=SPA_DIR):
 def get_stations(package):
     """returns stations dir names in given package"""
     try:
-        stations_dir = get_station_path(package, "")
+        stations_dir = path_helper.station_path(package, "")
         return os.listdir(stations_dir)
     except FileNotFoundError as fnf_err:
         raise FileNotFoundError(
@@ -40,11 +41,7 @@ def get_stations(package):
             fnf_err
         )
 
-def get_station_path(package, station_name=""):
-    """ returns path for given station name and package"""
-    return os.path.join(
-        SPA_DIR, package, 'station', station_name
-    )
+
 
 def list_dependencies(package, station=None, verbose=False):
     """
@@ -71,7 +68,7 @@ def list_dependencies(package, station=None, verbose=False):
 
 def get_dependencies(package, station, verbose=False, skip_errors=False):
     station_path=os.path.join(
-        get_station_path(package, station), 'station.cfgfile'
+        path_helper.station_path(package, station), 'station.cfgfile'
     )
 
     if(verbose): print('loading ', station_path, '...')

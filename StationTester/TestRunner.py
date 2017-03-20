@@ -60,7 +60,7 @@ class TestRunner(object):
             try:
                 for station in util.get_stations(SPA):
                     if verbose: print("|---- ", os.path.basename(station))
-                    tests.append(util.get_station_path(SPA, station))
+                    tests.append(path_helper.station_path(SPA, station))
             except FileNotFoundError as fnf_err:
                 print(
                     "\nWARN: no stations found for SPA \"",
