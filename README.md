@@ -25,6 +25,7 @@ The TestHelper module is intended to help with writing of SPA station tests.
 For example usage also see `new_test_template.py`.
 
 ```python
+from StationTester import path_helper, TestHelper.TestHelper as TestHelper
 
 def test_using_SPA_command(self):
     """ runs station via IPOPP wrapper, checks that `products` exist, and `errfiles` are empty """
@@ -94,7 +95,7 @@ def test_output_paramfile(self):
     # check MyProgramFile.txt has been created and contains "param_1=abc123"
     TestHelper.expect_params_in_file(
         self,
-        TestHelper.sandbox_file("MyProgramFile.txt"),
+        path_helper.sandbox_file("MyProgramFile.txt"),
         {"param_1":"abc123"}
     )
 ```

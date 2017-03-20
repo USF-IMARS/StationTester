@@ -39,16 +39,16 @@ class TestHelper:
         """
         # prep command:
         command = path_helper.wrapper_home+'/run ' + command
-        command = command.replace('$INPUT', path_helper.testindir)
-        command = command.replace('$OUTPUT', path_helper.testoutdir)
+        command = command.replace('$INPUT', path_helper._indir)
+        command = command.replace('$OUTPUT', path_helper._outdir)
 
         # run command:
         result = TestHelper.check_cmd(command)
 
         # perform checks:
         TestHelper._expect_empty_errfiles(testClass, errfiles)
-        TestHelper._expect_files(testClass, expected_files, TestHelper.sandbox)
-        TestHelper._expect_files(testClass, products, path_helper.testoutdir)
+        TestHelper._expect_files(testClass, expected_files, TestHelper._sandbox)
+        TestHelper._expect_files(testClass, products, path_helper._outdir)
 
         return result
 
@@ -70,7 +70,7 @@ class TestHelper:
             res = subprocess.run(
                 cmd,
                 check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                shell=True, cwd=path_helper.sandbox, env=env, bufsize=bufsize,
+                shell=True, cwd=path_helper._sandbox, env=env, bufsize=bufsize,
             )
             return res
         except subprocess.CalledProcessError as err:
@@ -83,14 +83,14 @@ class TestHelper:
     @staticmethod
     def _del_testdata_out():
         print("rm test output...")
-        filelist = [ f for f in os.listdir(path_helper.testoutdir) ]
+        filelist = [ f for f in os.listdir(path_helper._outdir) ]
         for f in filelist:
-            os.remove(os.path.join(path_helper.testoutdir, f))
+            os.remove(os.path.join(path_helper._outdir, f))
 
     @staticmethod
     def _clean_sandbox():
-        for f in [ fi for fi in os.listdir(path_helper.sandbox)]:
-            path = os.path.join(path_helper.sandbox, f)
+        for f in [ fi for fi in os.listdir(path_helper._sandbox)]:
+            path = os.path.join(path_helper._sandbox, f)
             try :
                 os.remove( path )
             except IsADirectoryError:
@@ -146,21 +146,12 @@ class TestHelper:
         actual = util.read_params(filename)
         testClass.assertDictContainsSubset(paramDict, actual)
 
-    @staticmethod
-    def sandbox_file(filename):
-        """returns full path to file in sandbox"""
-        return os.path.join(path_helper.sandbox, filename)
-
-    @staticmethod
-    def input_file(filename):
-        """returns full path to input file in test_data"""
-        return os.path.join(path_helper.testindir, filename)
 
     @staticmethod
     def _expect_empty_errfiles(testClass, errfiles, directory=None):
         """ assert no errs in errfiles """
         if (directory is None):
-            directory = path_helper.sandbox
+            directory = path_helper._sandbox
         for errfile in errfiles:
             # print(errfile, '?')
             path = os.path.join(directory, errfile)

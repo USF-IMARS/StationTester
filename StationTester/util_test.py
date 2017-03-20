@@ -25,7 +25,7 @@ class Test_util_basic_tests(unittest.TestCase):
 
     def test_read_params(self):
         params = util.read_params(
-            os.path.join(path_helper.testindir, 'test_config.ini')
+            os.path.join(path_helper._indir, 'test_config.ini')
         )
         print(params)
         self.assertEqual(params['test1'], 'apple')
