@@ -32,7 +32,7 @@ def output_file(filename):
     """returns full path to output file in test_data"""
     return os.path.join(_outdir, filename)
 
-def cfgpath(packageName, stationName):
+def cfg_path(packageName, stationName):
     """returns full path to cfgfile of given package and station"""
     return os.path.join(station_path(packageName, stationName), "station.cfgfile")
 

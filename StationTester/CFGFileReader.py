@@ -9,7 +9,8 @@ from xml.etree import ElementTree
 
 class CFGFileReader(object):
     def __init__(self, cfgfile_path, verbose=False):
-        self.tree = ElementTree.parse(cfgfile_path)
+        self.path = cfgfile_path
+        self.tree = ElementTree.parse(self.path)
         self.root = self.tree.getroot()
         self.SETUP = self.root.find('SETUP')
         self.EXECUTE = self.root.find('EXECUTE')
@@ -65,6 +66,56 @@ class CFGFileReader(object):
         if (self.verbose): print('\n')
 
         return deps
+
+    def get_inflows(self):
+        """
+        returns list of station inflow products by searching for xml of the
+            following form:
+
+            ```xml
+            <Dsm_command class="DSM" method="reserveProductLikeProductType">
+                <String value="imars.%.mapped.png"/>
+                <String value="imars.%.mapped"/>
+            </Dsm_command>
+            ```
+
+        There _should_ be only 1 inflow product per station. This method does
+        not assume that, but will print a warning if it finds more than one.
+        """
+        inflows = []
+
+        xpath_query = ".//Dsm_command/[@method='reserveProductLikeProductType']"
+        for reservation in self.EXECUTE.findall(xpath_query):
+            for product in reservation:
+                inflows.append(product.get("value"))
+
+        if len(inflows) > 1:
+            print("\n\tWARN: cfgfile has multiple inflow products:", self.path, "\n")
+
+        return inflows
+
+    def get_outflows(self):
+        """
+        returns list of station outflow products by searching for xml of the
+            following form:
+
+            ```xml
+            <Dsm_command class="Product" debug="{cfg_debug}" method="new"
+                result="drl.aqua.modis.mxd01.OBJ" runFlag="true">
+                <Object value="drl.aqua.modis.pds.OBJ"/>
+                <String value="drl.aqua.modis.mxd01"/>
+            </Dsm_command>
+            ```
+        """
+        outflows = []
+
+        xpath_query = ".//Dsm_command/[@method='new']/[@class='Product']"
+        for product in self.EXECUTE.findall(xpath_query):
+            outflows.append(product.find("String").get("value"))
+
+        return outflows
+
+
 
     @staticmethod
     def _addDepToDict(deps, newdepkey, newdepval):

@@ -41,8 +41,6 @@ def get_stations(package):
             fnf_err
         )
 
-
-
 def list_dependencies(package, station=None, verbose=False):
     """
     Lists the executables ultimately needed by a station.
