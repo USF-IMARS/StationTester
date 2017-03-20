@@ -5,7 +5,6 @@ file cleanup and errfile checking.
 """
 
 import os
-import shutil
 import subprocess
 
 from StationTester import util, path_helper, test_cleaner

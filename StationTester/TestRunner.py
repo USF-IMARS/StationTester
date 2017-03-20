@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # NOTE: must manually pass through args that were captured above and
     #       not passed to nose. Try to minimalize this overlap since there will
     #       be no way to pass the arg to one without also passing to the other.
-    unknownargs.verbose = args.verbose
+    # unknownargs.verbose = args.verbose
 
     tester = TestRunner(args)
     tester.test_all_SPAs()
