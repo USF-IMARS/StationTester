@@ -20,12 +20,12 @@ FNULL = open(os.devnull, 'w')
 ### static methods: ###
 def sandbox_file(filename):
     """returns full path to file in sandbox"""
-    return os.path.join(path_helper._sandbox, filename)
+    return os.path.join(_sandbox, filename)
 
 def input_file(filename):
     """returns full path to input file in test_data"""
-    return os.path.join(path_helper._indir, filename)
+    return os.path.join(_indir, filename)
 
 def output_file(filename):
     """returns full path to output file in test_data"""
-    return os.path.join(path_helper._outdir, filename)
+    return os.path.join(_outdir, filename)
