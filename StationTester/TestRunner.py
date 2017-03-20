@@ -15,7 +15,7 @@ import os
 
 from StationTester import util, path_helper, test_helper
 
-class TestRunner:
+class TestRunner(object):
 
     def __init__(self, arguments):
         self.args = arguments

@@ -22,6 +22,16 @@ class Test_util_basic_tests(unittest.TestCase):
         util.list_dependencies("imars", verbose=True)
         util.list_dependencies("seadas7.3", verbose=True)
 
+    def test_get_deps_imars_modis_sst_png(self):
+        """ get_deps reports modis_sst_png has alg generate_thumbnail """
+        result = util.get_dependencies("imars", "modis_sst_png")
+        self.assertTrue("generate_thumbnail" in result)
+
+    def test_get_deps_imars_modis_sst_png_PngGenerator(self):
+        """ get_deps reports alg generate_thumbnail is PngGenerator.py """
+        result = util.get_dependencies("imars", "modis_sst_png")
+        self.assertTrue("PngGenerator" in result["generate_thumbnail"])
+
     def test_read_params(self):
         params = util.read_params(
             os.path.join(path_helper._indir, 'test_config.ini')

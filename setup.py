@@ -26,6 +26,7 @@ setup(name='StationTester',
 
     tests_require=['nose'],
     install_requires=[
+        'networkx'  # iff you want to make graphs
     ],
     #cmdclass={'test': PyTest},
 
