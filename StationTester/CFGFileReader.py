@@ -156,16 +156,16 @@ class CFGFileReader(object):
 
         returns: formatted string with substitutions
         """
-        if self.verbose: print("var_sub()")
+        if self.verbose: print("var_sub(", string, ")")
         vardict = self._get_var_dict(line)
         try:
-            _ret = self._check_val(string.format(vardict))
+            _ret = self._check_val(string.format(**vardict))
             if self.verbose: print("subbed:", _ret)
             return _ret
         except (KeyError) as kerr:
             try:  # it might be an empty string (.format throws KeyError on "")
                 varname = kerr.args[0]
-                if (vardict[varname] == ""):
+                if (len(vardict[varname]) < 1):
                     print("\nWARN: var \"", varname, "\" is empty string.")
                     # remove offending var and try again
                     new_str = string.replace("{" + varname + "}", "")
@@ -174,10 +174,8 @@ class CFGFileReader(object):
                     raise kerr
             except (KeyError) as kerr2:  # it's actually not defined
                 print(vardict)
-                raise KeyError(
-                    "var \""+ varname+"\" undefined (see printed varlist)",
-                    kerr
-                )
+                print("\n\tERR:var \""+ varname+"\" undefined (varlist above)")
+                raise kerr
         assert(False)  # should never reach here...
 
     def _try_append_str(self, newString, targetList):
@@ -187,7 +185,7 @@ class CFGFileReader(object):
         """
         try:
             formatted_str = self._formatter(newString)
-            # assert(formatted_str is not None)
+            assert(formatted_str is not None)  # this should have thrown err
             targetList.append(formatted_str)
         except CFGFileValueError as verr:
             if (str(verr) == "value == \"\""):
@@ -214,10 +212,13 @@ class CFGFileReader(object):
         if (verbose is None): verbose = self.verbose
 
         vardict = dict()
-        for elem in self.EXECUTE.iter():
+        for elem in self.root.iter():
             if True:#elem._end_line_number < line:  # TODO
                 if (elem.tag == "Ncs_set"):
+                    if verbose: print(elem.attrib["name"], "=", elem.attrib["value"])
                     vardict[elem.attrib["name"]] = elem.attrib["value"]
+                elif(elem.tag == "Ncs_log"):
+                    pass
                 else:
                     if verbose:
                         print("WARN: unknown NCS cmd \"", elem.tag, "\"")

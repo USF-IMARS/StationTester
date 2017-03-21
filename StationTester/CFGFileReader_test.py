@@ -76,7 +76,7 @@ class Test_CFGFileReader(unittest.TestCase):
         cfg = CFGFileReader(path_helper.cfg_path("imars", "oc_png"), verbose=True)
         cfg.set_varsub(True)
         actual = cfg.get_inflows()
-        expected = []
+        expected = ['imars.{cfg_prodtype}.modis.oc.mapped']
 
         self.assertEqual(expected, actual)
 
