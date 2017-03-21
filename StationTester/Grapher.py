@@ -13,6 +13,14 @@ class Grapher(object):
     def __init__(self):
         self.graph = netx.DiGraph()
 
+    def graph_all(self):
+        """ graphs all SPAs installed in the spa_dir """
+        for packageName in util.get_packages():
+            try:
+                self.graph_SPA(packageName)
+            except FileNotFoundError as err:
+                print("\n\tWARN: no stations found for SPA \"", packageName, "\"")
+
     def graph_SPA(self, packageName):
         """
         produces graph of in/outfows for all stations in given SPA
@@ -49,8 +57,8 @@ class Grapher(object):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='graph SPA station(s) in/outflows')
 
-    parser.add_argument("packageName", help="name of package to graph")
-    parser.add_argument("-s", "--stationName", help="name of station to graph")
+    parser.add_argument("-p", "--package", help="name of SPA package to graph")
+    parser.add_argument("-s", "--station", help="name of station to graph")
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true"
     )
@@ -59,9 +67,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     graph = Grapher()
-    if (args.stationName is None):
-        graph.graph_SPA(args.packageName)
+    if (args.package is None):
+        if (args.station is not None):
+            print("\n\tERR: must provide package along with station name\n")
+            parser.print_help()
+            quit()
+        else:
+            graph.graph_all()
     else:
-        graph.graph_station(args.packageName, args.stationName)
+        if (args.station is None):
+            graph.graph_SPA(args.package)
+        else:
+            graph.graph_station(args.package, args.station)
     graph.save(args.outfile)
     print(".gexf file saved. Open w/ gephi (or other) to view.")
