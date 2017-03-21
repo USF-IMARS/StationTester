@@ -173,7 +173,8 @@ class CFGFileReader(object):
                 else:
                     raise kerr
             except (KeyError) as kerr2:  # it's actually not defined
-                print(vardict)
+                print("\n\n\tin cfgfile:", self.path)
+                print("\n", vardict)
                 print("\n\tERR:var \""+ varname+"\" undefined (varlist above)")
                 raise kerr
         assert(False)  # should never reach here...
@@ -211,7 +212,10 @@ class CFGFileReader(object):
         """ returns dict of variable values set through given line # """
         if (verbose is None): verbose = self.verbose
 
-        vardict = dict()
+        # starting vars here are defaults included ALWAYS
+        vardict = {
+            "product_group": "<PRODUCT_GROUP>"  # else undef in h2g modis_tcolor-2
+        }
         for elem in self.root.iter():
             if True:#elem._end_line_number < line:  # TODO
                 if (elem.tag == "Ncs_set"):

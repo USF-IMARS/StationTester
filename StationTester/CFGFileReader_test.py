@@ -84,3 +84,15 @@ class Test_CFGFileReader(unittest.TestCase):
         """ var_sub should raise err when string formats to "" """
         cfg = CFGFileReader(path_helper.cfg_path("imars", "oc_png"), verbose=True)
         self.assertRaises(CFGFileValueError, cfg._var_sub, "{otherInputTypes}")
+
+    def test_var_sub_on_crefl(self):
+        """h2g modis_tcolor-2 w/ undefined product_group"""
+        cfg = CFGFileReader(
+            path_helper.cfg_path("h2g", "modis_tcolor-2"),
+            verbose=True
+        )
+        cfg.set_varsub(True)
+        actual = cfg.get_inflows()
+        expected = ['imars.{cfg_prodtype}.modis.<PRODUCT_GROUP>.filtered']
+
+        self.assertEqual(expected, actual)
