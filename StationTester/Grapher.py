@@ -10,7 +10,8 @@ from StationTester.CFGFileReader import CFGFileReader
 from StationTester import path_helper, util
 
 class Grapher(object):
-    def __init__(self):
+    def __init__(self, verbose=False):
+        self.verbose = verbose
         self.graph = netx.DiGraph()
 
     def graph_all(self, varsub=True):
@@ -44,10 +45,12 @@ class Grapher(object):
 
         # connect inflow product to station
         for inflow in cfgfile.get_inflows():
+            if self.verbose: print(inflow, "=>", stationName)
             self.graph.add_edge(inflow, stationName)
 
         # connect station to outflow products
         for outflow in cfgfile.get_outflows():
+            if self.verbose: print(stationName, "=>", outflow)
             self.graph.add_edge(stationName, outflow)
 
     def save(self, filepath):
@@ -71,7 +74,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    graph = Grapher()
+    graph = Grapher(verbose=args.verbose)
     if (args.package is None):
         if (args.station is not None):
             print("\n\tERR: must provide package along with station name\n")

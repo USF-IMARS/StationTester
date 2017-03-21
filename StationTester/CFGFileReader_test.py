@@ -8,7 +8,7 @@ import unittest
 
 # dependencies:
 from StationTester import path_helper
-from StationTester.CFGFileReader import CFGFileReader
+from StationTester.CFGFileReader import CFGFileReader, CFGFileValueError
 
 class Test_CFGFileReader(unittest.TestCase):
 
@@ -53,7 +53,6 @@ class Test_CFGFileReader(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
-
     def test_get_var_value_basic(self):
         """ tests get_var_value for simple Ncs_set var """
         cfg = CFGFileReader(path_helper.cfg_path("modisl1db", "l0l1aqua"))
@@ -69,3 +68,19 @@ class Test_CFGFileReader(unittest.TestCase):
         expected = "test test"
 
         self.assertEqual(expected, actual)
+
+    def test_oc_png_has_no_None_inflows_w_formatter(self):
+        """
+        imars oc_png inflows should not include "None" values
+        """
+        cfg = CFGFileReader(path_helper.cfg_path("imars", "oc_png"), verbose=True)
+        cfg.set_varsub(True)
+        actual = cfg.get_inflows()
+        expected = []
+
+        self.assertEqual(expected, actual)
+
+    def test_var_sub_on_empty_string_raises(self):
+        """ var_sub should raise err when string formats to "" """
+        cfg = CFGFileReader(path_helper.cfg_path("imars", "oc_png"), verbose=True)
+        self.assertRaises(CFGFileValueError, cfg._var_sub, "{otherInputTypes}")

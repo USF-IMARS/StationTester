@@ -12,6 +12,9 @@ sys.modules['_elementtree'] = None
 # bc we can't hook the C implementation.
 from StationTester.LineNumberingParser import LineNumberingParser
 
+class CFGFileValueError(ValueError):
+    """bad value read from cfgfile"""
+
 class CFGFileReader(object):
     def __init__(self, cfgfile_path, verbose=False):
         self.path = cfgfile_path
@@ -56,14 +59,14 @@ class CFGFileReader(object):
                     for child in executable:
                         if(self.verbose): print('\t\t\t', child.text)
                         CFGFileReader._addDepToDict(deps, child.tag, child.text)
-            except FileNotFoundError as err:
+            except FileNotFoundError as fnferr:
                 if(skip_errors):
                     print(
                         "\n\nERROR: required substation file not found:\n",
                         sub_station_file, "\n\n"
                     )
                 else:
-                    raise FileNotFoundError
+                    raise fnferr
 
         # get direct calls to Ncs_run
         for runblock in self.EXECUTE.findall('Ncs_run'):
@@ -105,15 +108,7 @@ class CFGFileReader(object):
         for query in xpath_queries:
             for reservation in self.EXECUTE.findall(query):
                 for product in reservation:
-                    try:
-                        inflows.append(
-                            self._formatter(product.get("value"))
-                        )
-                    except ValueError as verr:
-                        if (str(verr) == "value is empty string"):
-                            pass
-                        else:
-                            raise verr
+                    self._try_append_str(product.get("value"), inflows)
 
         if len(inflows) > 1:
             print("\n\tWARN: cfgfile has multiple inflow products:", self.path, "\n")
@@ -139,15 +134,7 @@ class CFGFileReader(object):
 
         xpath_query = ".//Dsm_command/[@method='new']/[@class='Product']"
         for product in self.EXECUTE.findall(xpath_query):
-            try:
-                outflows.append(
-                    self._formatter(product.find("String").get("value"))
-                )
-            except ValueError as verr:
-                if (str(verr) == "value is empty string"):
-                    pass
-                else:
-                    raise verr
+            self._try_append_str(product.find("String").get("value"), outflows)
 
         return outflows
 
@@ -160,7 +147,7 @@ class CFGFileReader(object):
         if (newval):
             self._formatter = self._var_sub
         else:
-            self._formatter = lambda s: s # formatter does nothing
+            self._formatter = self._check_val
 
     def _var_sub(self, string, line=float("inf")):  # TODO: line should be req?
         """
@@ -169,29 +156,57 @@ class CFGFileReader(object):
 
         returns: formatted string with substitutions
         """
+        if self.verbose: print("var_sub()")
         vardict = self._get_var_dict(line)
         try:
-            return self._check_val(string.format(vardict))
+            _ret = self._check_val(string.format(vardict))
+            if self.verbose: print("subbed:", _ret)
+            return _ret
         except (KeyError) as kerr:
             try:  # it might be an empty string (.format throws KeyError on "")
                 varname = kerr.args[0]
                 if (vardict[varname] == ""):
-                    print("\nWARN: var is empty string.")
+                    print("\nWARN: var \"", varname, "\" is empty string.")
                     # remove offending var and try again
                     new_str = string.replace("{" + varname + "}", "")
                     return self._var_sub(new_str, line)
-            except KeyError as kerr2:  # it's actually not defined
+                else:
+                    raise kerr
+            except (KeyError) as kerr2:  # it's actually not defined
                 print(vardict)
                 raise KeyError(
-                    "var not defined (see printed varlist)",
+                    "var \""+ varname+"\" undefined (see printed varlist)",
                     kerr
                 )
+        assert(False)  # should never reach here...
+
+    def _try_append_str(self, newString, targetList):
+        """
+        Attempts to add given string to given list after passing through formatter.
+        Excepts common issues by simply not appending to the list.
+        """
+        try:
+            formatted_str = self._formatter(newString)
+            # assert(formatted_str is not None)
+            targetList.append(formatted_str)
+        except CFGFileValueError as verr:
+            if (str(verr) == "value == \"\""):
+                pass
+            elif (str(verr) == "value == None"):
+                pass
+            else:
+                raise verr
 
     def _check_val(self, value):
-        """throws error if value is no good, else pass it through"""
-        if (value == ""):
-            raise ValueError("value is empty string")
+        """throws CFGFileValueError if value is no good, else pass it through"""
+        if (len(value) < 1):
+            if self.verbose: print("value == \"\"")
+            raise CFGFileValueError("value == \"\"")
+        elif (value is None):
+            if self.verbose: print("value == None")
+            raise CFGFileValueError("value == None")
         else:
+            if self.verbose: print("value ok")
             return value
 
     def _get_var_dict(self, line, verbose=None):
@@ -205,7 +220,7 @@ class CFGFileReader(object):
                     vardict[elem.attrib["name"]] = elem.attrib["value"]
                 else:
                     if verbose:
-                        print("ERR: unknown NCS cmd \"", elem.tag, "\"")
+                        print("WARN: unknown NCS cmd \"", elem.tag, "\"")
                     else:
                         pass
         return vardict
