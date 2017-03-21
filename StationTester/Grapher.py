@@ -13,26 +13,27 @@ class Grapher(object):
     def __init__(self):
         self.graph = netx.DiGraph()
 
-    def graph_all(self):
+    def graph_all(self, varsub=True):
         """ graphs all SPAs installed in the spa_dir """
         for packageName in util.get_packages():
             try:
-                self.graph_SPA(packageName)
+                self.graph_SPA(packageName, varsub=varsub)
             except FileNotFoundError as err:
                 print("\n\tWARN: no stations found for SPA \"", packageName, "\"")
 
-    def graph_SPA(self, packageName):
+    def graph_SPA(self, packageName, varsub=True):
         """
         produces graph of in/outfows for all stations in given SPA
         """
         for stationName in util.get_stations(packageName):
-            self.graph_station(packageName, stationName)
+            self.graph_station(packageName, stationName, varsub=varsub)
 
-    def graph_station(self, packageName, stationName):
+    def graph_station(self, packageName, stationName, varsub=True):
         """
         produces graph of given station in/outflows
         """
         cfgfile = CFGFileReader(path_helper.cfg_path(packageName, stationName))
+        cfgfile.set_varsub(varsub)
 
         self.graph.add_node(stationName)
         # TODO: add these attribs to node
@@ -62,6 +63,10 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true"
     )
+    parser.add_argument("-n", "--nosub",
+        help="do not use variable substitution when reading cfgfile(s)",
+        action="store_true"
+    )
     parser.add_argument("outfile", help="file to save output")
 
     args = parser.parse_args()
@@ -73,11 +78,11 @@ if __name__ == "__main__":
             parser.print_help()
             quit()
         else:
-            graph.graph_all()
+            graph.graph_all(varsub=(not args.nosub))
     else:
         if (args.station is None):
-            graph.graph_SPA(args.package)
+            graph.graph_SPA(args.package, varsub=(not args.nosub))
         else:
-            graph.graph_station(args.package, args.station)
+            graph.graph_station(args.package, args.station, varsub=(not args.nosub))
     graph.save(args.outfile)
     print(".gexf file saved. Open w/ gephi (or other) to view.")
