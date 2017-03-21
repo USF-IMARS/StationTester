@@ -214,15 +214,78 @@ class CFGFileReader(object):
 
         # starting vars here are defaults included ALWAYS
         vardict = {
-            "product_group": "<PRODUCT_GROUP>"  # else undef in h2g modis_tcolor-2
+            "product_group": "?product_group?",  # else undef in h2g modis_tcolor-2
+            "tiff_product_type": "?tiff_product_type?", # else undef in imars img_publisher
+            "place_name": "?place_name?", # else undef in imars oc_png
+
+            # NCS-injected:
+            "/":"/",
+            "cfg_ncs_home": "<cfg_ncs_home>",
+            "cfg_prodtype": "<cfg_prodtype>",
+            "cfg_stationDirectory": "<cfg_stationDirectory>",
+
+            # read from site.properties:
+            "NISGS_SITE_NAME": "$NISGS_SITE_NAME$",
+            "DSM_DATA_DIRECTORY": "$DSM_DATA_DIRECTORY$"
         }
         for elem in self.root.iter():
             if True:#elem._end_line_number < line:  # TODO
                 if (elem.tag == "Ncs_set"):
-                    if verbose: print(elem.attrib["name"], "=", elem.attrib["value"])
-                    vardict[elem.attrib["name"]] = elem.attrib["value"]
-                elif(elem.tag == "Ncs_log"):
+                    key = elem.attrib["name"]
+                    val = elem.attrib["value"].format(**vardict)
+                    if verbose: print(key, "=", val)
+                    vardict[key] = val
+                elif(elem.tag == "Ncs_log" or elem.tag == "Ncs_print"):
                     pass
+                elif(elem.tag == "Ncs_getMatch"):
+                    #    <Ncs_getMatch name="{drl_aqua_modis_pds}" pattern="[^{/}]*$" result="drl_aqua_modis_pds_filename"/>
+                    key = elem.attrib["result"]
+                    val = elem.attrib["name"]
+                    if verbose: print(key, "=", val)
+                    vardict[key] = val
+                elif(elem.tag == "Dsm_command"):
+                    # <Dsm_command class="DSM" debug="{cfg_debug}" method="getProductPath" result="infile_path">
+                    #   <Object value="imars.{sat}.{sensor}.{product_family}.mapped.OBJ"/>
+                    # </Dsm_command>
+                    ####### OR ####################
+                    # <Dsm_command class="imars.{sat}.{sensor}.{product_family}.mapped.OBJ"
+                    # debug="{cfg_debug}" method="getAttribute" result="area">
+                    #     <String value="place_name" />
+                    # </Dsm_command>
+                    try:
+                        key = elem.attrib["result"]
+
+                        val = elem.attrib["method"] + "("
+                        for i, param in enumerate(elem.iter()):
+                            if (i == 0): # skip first elem (Dsm_command itself)
+                                pass
+                            else:
+                                try:
+                                    val += param.attrib["value"] + ", "
+                                except KeyError as val_key_err:
+                                    # command param has no value???
+                                    raise KeyError(param.tag ,valkeyerr)
+                        val += ")"
+
+                        if verbose: print(key, "=", val)
+                        vardict[key] = val
+                    except KeyError as kerr:
+                        if kerr.args[0] == "result":
+                            pass # call does not save return value anywhere
+                        else:
+                            raise kerr
+                elif(elem.tag == "Ncs_date"):
+                     #  	<Ncs_date getValue="start_date name="cfg_starttime" pattern="yyyyDDD"/>
+                     if "getValue" in elem.attrib:
+                         key = elem.attrib["getValue"]
+                         val = elem.attrib["name"]
+                         if verbose: print(key, "=", val)
+                         vardict[key] = val
+                     elif "setValue" in elem.attrib:
+                         pass
+                     else:
+                         if verbose:
+                             print("WARN: unknown NCS usage Ncs_date(", elem.attrib, ")")
                 else:
                     if verbose:
                         print("WARN: unknown NCS cmd \"", elem.tag, "\"")

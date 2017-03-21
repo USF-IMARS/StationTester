@@ -76,7 +76,7 @@ class Test_CFGFileReader(unittest.TestCase):
         cfg = CFGFileReader(path_helper.cfg_path("imars", "oc_png"), verbose=True)
         cfg.set_varsub(True)
         actual = cfg.get_inflows()
-        expected = ['imars.{cfg_prodtype}.modis.oc.mapped']
+        expected = ['imars.getProductType().modis.oc.mapped']
 
         self.assertEqual(expected, actual)
 
@@ -93,6 +93,6 @@ class Test_CFGFileReader(unittest.TestCase):
         )
         cfg.set_varsub(True)
         actual = cfg.get_inflows()
-        expected = ['imars.{cfg_prodtype}.modis.<PRODUCT_GROUP>.filtered']
+        expected = ['imars.getProductType().modis.?product_group?.filtered']
 
         self.assertEqual(expected, actual)
