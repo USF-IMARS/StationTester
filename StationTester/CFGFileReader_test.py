@@ -96,3 +96,24 @@ class Test_CFGFileReader(unittest.TestCase):
         expected = ['imars.getProductType().modis.?product_group?.filtered']
 
         self.assertEqual(expected, actual)
+
+    def test_brackets_in_varnames(self):
+        """ test using CVIIRS/CVIIRS which has brackets in varnames """
+        cfg = CFGFileReader(
+            path_helper.cfg_path("CVIIRS", "CVIIRS"),
+            verbose=True
+        )
+        cfg.set_varsub(True)
+        actual = cfg.get_inflows()
+        expected = [
+            'drl.npp.viirs.svm03',
+            'drl.npp.viirs.svm04 drl.npp.viirs.svm05 drl.npp.viirs.svm07 '
+            'drl.npp.viirs.svm08 drl.npp.viirs.svm10 drl.npp.viirs.svm11 '
+            'drl.npp.viirs.svi01 drl.npp.viirs.svi02 drl.npp.viirs.svi03 '
+            'drl.npp.viirs.gmtco'
+        ]
+
+        self.assertEqual(expected, actual)
+
+    def test_getDate_wo_name(self):
+        """ test using CVIIRS/CVIIRS which uses getDate() w/o name attrib """

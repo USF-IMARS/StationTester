@@ -232,7 +232,11 @@ class CFGFileReader(object):
             if True:#elem._end_line_number < line:  # TODO
                 if (elem.tag == "Ncs_set"):
                     key = elem.attrib["name"]
-                    val = elem.attrib["value"].format(**vardict)
+                    try:
+                        val = elem.attrib["value"].format(**vardict)
+                    except (KeyError, ValueError) as kerr:
+                        val = elem.attrib["value"]
+                        print("\n\tWARN: trouble parsing value")
                     if verbose: print(key, "=", val)
                     vardict[key] = val
                 elif(elem.tag == "Ncs_log" or elem.tag == "Ncs_print"):
@@ -278,7 +282,10 @@ class CFGFileReader(object):
                      #  	<Ncs_date getValue="start_date name="cfg_starttime" pattern="yyyyDDD"/>
                      if "getValue" in elem.attrib:
                          key = elem.attrib["getValue"]
-                         val = elem.attrib["name"]
+                         if "name" in elem.attrib:
+                             val = elem.attrib["name"]
+                         else:  # no name given
+                             val = "Ncs_date.getValue()"
                          if verbose: print(key, "=", val)
                          vardict[key] = val
                      elif "setValue" in elem.attrib:
