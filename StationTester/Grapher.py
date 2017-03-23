@@ -61,12 +61,12 @@ class Grapher(object):
 
     def save(self, filepath):
         """ saves graph at given filepath """
-        netx.write_gexf(self.graph, filepath)
+        netx.write_gexf(self.graph, filepath, version="1.2draft")
 
     def _add_node(self, name, node_type, cfgfile):
-        attribs = {"Size":1}
+        attribs = {"size":1}
         if node_type == NodeType.STATION:
-            attribs["group"]=cfgfile.get_global_attrib("cfg_groupTag")  # TODO: map groups to Color
+            attribs["group"]=cfgfile.get_global_attrib("cfg_groupTag")
             attribs["version"]=cfgfile.get_global_attrib("version")
         elif node_type == NodeType.PRODUCT:
             attribs["group"]="product"
@@ -81,13 +81,12 @@ class Grapher(object):
             self.graph.add_node(name, attribs)
         else:
             if self.verbocity > 1: print(name + "++")
-            self.graph.node[name]["weight"] += 1
 
     def _add_edge(self, from_node, to_node):
         self.graph.add_edge(
             from_node,
             to_node,
-            {"weight":1}
+            {"Size":1}
         )
 
 
