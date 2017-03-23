@@ -149,6 +149,10 @@ class CFGFileReader(object):
         else:
             self._formatter = self._check_val
 
+    def get_global_attrib(self, key):
+        """ gets one of the "required" global vars from the cfgfile """
+        return self._get_var_value(key, float("inf"))  # TODO: be more clever here
+
     def _var_sub(self, string, line=float("inf")):  # TODO: line should be req?
         """
         substitutes variables from file read through given line number

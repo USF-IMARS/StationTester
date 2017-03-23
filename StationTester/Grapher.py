@@ -4,10 +4,14 @@ tests station graphing functionality
 """
 
 import argparse
+from enum import Enum
+
 import networkx as netx
 
 from StationTester.CFGFileReader import CFGFileReader
 from StationTester import path_helper, util
+
+NodeType = Enum("NodeType", "STATION PRODUCT")
 
 class Grapher(object):
     def __init__(self, verbocity=0):
@@ -41,26 +45,50 @@ class Grapher(object):
         )
         cfgfile.set_varsub(varsub)
 
-        self.graph.add_node(stationName)
-        # TODO: add these attribs to node
-        # <Ncs_set name="cfg_stationName" value="imars_img_publisher"/>
-        # <Ncs_set name="cfg_groupTag" value="imars_img_publisher"/>
-        # <Ncs_set name="version" value="ImgPublisher"/>
-        # <Ncs_set name="cfg_stationLog" value="station.stationlog"/>
+        self._add_node(stationName, NodeType.STATION, cfgfile)
 
         # connect inflow product to station
         for inflow in cfgfile.get_inflows():
             if self.verbose: print(inflow, "=>", stationName)
-            self.graph.add_edge(inflow, stationName)
+            self._add_node(inflow, NodeType.PRODUCT, cfgfile)
+            self._add_edge(inflow, stationName)
 
         # connect station to outflow products
         for outflow in cfgfile.get_outflows():
             if self.verbose: print(stationName, "=>", outflow)
-            self.graph.add_edge(stationName, outflow)
+            self._add_node(outflow, NodeType.PRODUCT, cfgfile)
+            self._add_edge(stationName, outflow)
 
     def save(self, filepath):
         """ saves graph at given filepath """
         netx.write_gexf(self.graph, filepath)
+
+    def _add_node(self, name, node_type, cfgfile):
+        attribs = {"Size":1}
+        if node_type == NodeType.STATION:
+            attribs["group"]=cfgfile.get_global_attrib("cfg_groupTag")  # TODO: map groups to Color
+            attribs["version"]=cfgfile.get_global_attrib("version")
+        elif node_type == NodeType.PRODUCT:
+            attribs["group"]="product"
+            attribs["version"]="0.0.0"
+            # TODO: check for other products matching wld.%.card values here
+            # TODO: maybe w/ self.graph.nodes()?
+        else:
+            raise ValueError("Unknown NodeType")
+
+        if not self.graph.has_node(name):
+            if self.verbocity > 1: print("newNode:" + name)
+            self.graph.add_node(name, attribs)
+        else:
+            if self.verbocity > 1: print(name + "++")
+            self.graph.node[name]["weight"] += 1
+
+    def _add_edge(self, from_node, to_node):
+        self.graph.add_edge(
+            from_node,
+            to_node,
+            {"weight":1}
+        )
 
 
 if __name__ == "__main__":

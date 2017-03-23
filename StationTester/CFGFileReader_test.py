@@ -117,3 +117,5 @@ class Test_CFGFileReader(unittest.TestCase):
 
     def test_getDate_wo_name(self):
         """ test using CVIIRS/CVIIRS which uses getDate() w/o name attrib """
+        pass # for now this test would be duplicate of test_brackets_in_varnames
+        # TODO: set up test cfgfile
