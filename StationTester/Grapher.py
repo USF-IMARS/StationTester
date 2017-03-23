@@ -10,8 +10,9 @@ from StationTester.CFGFileReader import CFGFileReader
 from StationTester import path_helper, util
 
 class Grapher(object):
-    def __init__(self, verbose=False):
-        self.verbose = verbose
+    def __init__(self, verbocity=0):
+        self.verbose = (verbocity > 0)
+        self.verbocity = verbocity
         self.graph = netx.DiGraph()
 
     def graph_all(self, varsub=True):
@@ -33,7 +34,11 @@ class Grapher(object):
         """
         produces graph of given station in/outflows
         """
-        cfgfile = CFGFileReader(path_helper.cfg_path(packageName, stationName))
+        if self.verbose: print("graphing "+packageName+"/"+stationName+"...")
+        cfgfile = CFGFileReader(
+            path_helper.cfg_path(packageName, stationName),
+            verbose=(self.verbocity > 1)
+        )
         cfgfile.set_varsub(varsub)
 
         self.graph.add_node(stationName)
@@ -64,7 +69,8 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--package", help="name of SPA package to graph")
     parser.add_argument("-s", "--station", help="name of station to graph")
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
-                        action="store_true"
+                        action="count",
+                        default=0
     )
     parser.add_argument("-n", "--nosub",
         help="do not use variable substitution when reading cfgfile(s)",
@@ -74,7 +80,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    graph = Grapher(verbose=args.verbose)
+    graph = Grapher(verbocity=args.verbose)
     if (args.package is None):
         if (args.station is not None):
             print("\n\tERR: must provide package along with station name\n")

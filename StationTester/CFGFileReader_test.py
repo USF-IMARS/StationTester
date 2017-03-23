@@ -20,7 +20,7 @@ class Test_CFGFileReader(unittest.TestCase):
         """
         cfg = CFGFileReader(path_helper.cfg_path("imars", "img_publisher"))
         actual = cfg.get_inflows()
-        expected = ['imars.%.mapped.png', 'imars.%.mapped']
+        expected = ['imars.%.mapped.png']
 
         self.assertEqual(expected, actual)
 
