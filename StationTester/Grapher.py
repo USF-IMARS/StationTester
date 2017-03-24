@@ -6,6 +6,7 @@ tests station graphing functionality
 import argparse
 from enum import Enum
 import configparser
+import re
 
 import networkx as netx
 
@@ -104,11 +105,11 @@ class Grapher(object):
                     self._add_edge(name, match)
 
     def _get_nodes_that_match(self, expr):
-        """ returns nodes that match string with 1 % wildcard """
+        """ returns nodes that match expr with % wildcard (and other regex) """
         result = []
-        pre, post = expr.split("%")
+        pattern = re.compile(expr.replace("%", "*"))
         for node in self.graph.nodes():
-            if node.startswith(pre) and node.endswith(post):
+            if pattern.match(expr):
                 result.append(node)
         return result
 
