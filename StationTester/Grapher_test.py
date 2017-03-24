@@ -20,6 +20,19 @@ class Test_station_graph_basics(unittest.TestCase):
 
         self.assertTrue('img_publisher' in list(grapher.graph.nodes()))
 
+    def test_graph_modis_outflows_link(self):
+        """ modisl1db auto-links properly """
+        grapher = Grapher()
+        grapher.graph_SPA("modisl1db")
+
+        self.assertTrue(grapher.graph.has_edge(
+            "drl.terra.modis.mxd01", "drl.%.modis.mxd01"
+        ))
+
+        self.assertTrue(grapher.graph.has_edge(
+            "drl.aqua.modis.mxd01", "drl.%.modis.mxd01"
+        ))
+
     def test_graph_wildcard_nodes_check(self):
         """ checks for auto-linking wildcard nodes """
         n1 = "imars.test.terra.modis.stuff.and.junk.mapped.png"
@@ -38,7 +51,7 @@ class Test_station_graph_basics(unittest.TestCase):
 
         # check for link btwn nodes
         self.assertTrue(
-            grapher.graph.has_edge(n2, n1),
+            grapher.graph.has_edge(n1, n2),
             "wildcard node not auto-linked. edges:" + str(grapher.graph.edges())
         )
 
