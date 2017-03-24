@@ -107,7 +107,14 @@ class Grapher(object):
     def _get_nodes_that_match(self, expr):
         """ returns nodes that match expr with % wildcard (and other regex) """
         result = []
-        pattern = re.compile(expr.replace("%", "*"))
+
+        new_expr = "^" + re.escape(expr) + "$"  # add anchors escape regex chars
+        new_expr = new_expr.replace("\\%", ".*")  # convert wildcard
+        # NOTE: the following replacement is a bit of a hard-coded hack
+        #       (see CFGFileReader for more)
+        new_expr = new_expr.replace("getProductType\\(\\)", ".*")
+
+        pattern = re.compile(new_expr)
         for node in self.graph.nodes():
             if pattern.match(node):
                 result.append(node)
