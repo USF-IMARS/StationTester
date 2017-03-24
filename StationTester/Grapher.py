@@ -87,8 +87,6 @@ class Grapher(object):
             attribs["group"]="product"
             attribs["version"]="0.0.0"
             attribs["type"]="PRODUCT"
-            # TODO: check for other products matching wld.%.card values here
-            # TODO: maybe w/ self.graph.nodes()?
         else:
             raise ValueError("Unknown NodeType")
 
@@ -97,6 +95,22 @@ class Grapher(object):
             self.graph.add_node(name, attribs)
         else:
             if self.verbocity > 1: print(name + "++")
+
+        # check for products matching wld.%.card values and auto-link them:
+        if node_type == NodeType.PRODUCT and "%" in name:
+            matches = self._get_nodes_that_match(name)
+            for match in matches:
+                if match != name:  # don't link to self
+                    self._add_edge(name, match)
+
+    def _get_nodes_that_match(self, expr):
+        """ returns nodes that match string with 1 % wildcard """
+        result = []
+        pre, post = expr.split("%")
+        for node in self.graph.nodes():
+            if node.startswith(pre) and node.endswith(post):
+                result.append(node)
+        return result
 
     def _add_edge(self, from_node, to_node):
         self.graph.add_edge(

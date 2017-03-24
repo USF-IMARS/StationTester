@@ -7,7 +7,7 @@ tests station graphing functionality
 import unittest
 
 # dependencies:
-from StationTester.Grapher import Grapher
+from StationTester.Grapher import Grapher, NodeType
 
 class Test_station_graph_basics(unittest.TestCase):
 
@@ -20,10 +20,42 @@ class Test_station_graph_basics(unittest.TestCase):
 
         self.assertTrue('img_publisher' in list(grapher.graph.nodes()))
 
-    # this was problem w/ CFGFileReader
-    # def test_graph_has_no_None_nodes(self):
-    #     """ imars oc_png station node is created """
-    #     grapher = Grapher(verbose=True)
-    #     grapher.graph_station('imars', 'oc_png')
-    #
-    #     self.assertFalse(None in list(grapher.graph.nodes()))
+    def test_graph_wildcard_nodes_check(self):
+        """ checks for auto-linking wildcard nodes """
+        n1 = "imars.test.terra.modis.stuff.and.junk.mapped.png"
+        n2 = 'imars.%.mapped.png'
+        grapher = Grapher()
+        grapher._add_node(
+            n1,
+            NodeType.PRODUCT,
+            None
+        )
+        grapher._add_node(
+            n2,
+            NodeType.PRODUCT,
+            None
+        )
+
+        # check for link btwn nodes
+        self.assertTrue(
+            grapher.graph.has_edge(n2, n1),
+            "wildcard node not auto-linked. edges:" + str(grapher.graph.edges())
+        )
+
+    def test_get_nodes_that_match_basic(self):
+        """ basic get nodes matching wildcard """
+        n1 = "imars.test.terra.modis.stuff.and.junk.mapped.png"
+        n2 = 'imars.%.mapped.png'
+        grapher = Grapher()
+        grapher._add_node(
+            n1,
+            NodeType.PRODUCT,
+            None
+        )
+        grapher._add_node(
+            n2,
+            NodeType.PRODUCT,
+            None
+        )
+
+        self.assertCountEqual([n1, n2], grapher._get_nodes_that_match(n2))
