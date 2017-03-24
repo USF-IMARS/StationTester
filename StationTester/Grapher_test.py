@@ -26,18 +26,21 @@ class Test_station_graph_basics(unittest.TestCase):
         grapher.graph_SPA("modisl1db")
 
         self.assertTrue(grapher.graph.has_edge(
-            "drl.terra.modis.mxd01", "drl.%.modis.mxd01"
+            "drl.aqua.modis.mxd01", "drl.%.modis.mxd01"
         ))
 
+        self.assertTrue(grapher.graph.has_node("drl.terra.modis.mxd01"))
+        self.assertTrue(grapher.graph.has_node("drl.%.modis.mxd01"))
+
         self.assertTrue(grapher.graph.has_edge(
-            "drl.aqua.modis.mxd01", "drl.%.modis.mxd01"
+            "drl.terra.modis.mxd01", "drl.%.modis.mxd01"
         ))
 
     def test_graph_wildcard_nodes_check(self):
         """ checks for auto-linking wildcard nodes """
         n1 = "imars.test.terra.modis.stuff.and.junk.mapped.png"
         n2 = 'imars.%.mapped.png'
-        grapher = Grapher()
+        grapher = Grapher(verbocity=2)
         grapher._add_node(
             n1,
             NodeType.PRODUCT,
@@ -48,6 +51,8 @@ class Test_station_graph_basics(unittest.TestCase):
             NodeType.PRODUCT,
             None
         )
+
+        grapher._auto_link()
 
         # check for link btwn nodes
         self.assertTrue(

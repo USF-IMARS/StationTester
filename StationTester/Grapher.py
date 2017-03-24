@@ -13,7 +13,13 @@ import networkx as netx
 from StationTester.CFGFileReader import CFGFileReader
 from StationTester import path_helper, util
 
-NodeType = Enum("NodeType", "STATION PRODUCT")
+# NodeType = Enum("NodeType", "STATION PRODUCT")
+class NodeType(Enum):
+    STATION = "station"
+    PRODUCT = "product"
+    def __str__(self):
+        return self.value
+
 
 class Grapher(object):
     def __init__(self, verbocity=0, graphignore=None):
@@ -71,23 +77,25 @@ class Grapher(object):
                 self._add_node(outflow, NodeType.PRODUCT, cfgfile)
                 self._add_edge(stationName, outflow)
 
+        self._finalize()  # NOTE: would be more efficient (but messier) to do this once
+
     def save(self, filepath):
         """ saves graph at given filepath """
         netx.write_gexf(self.graph, filepath, version="1.2draft")
 
     def _add_node(self, name, node_type, cfgfile, package="?"):
+        name = name.strip()
         attribs = {
             "size":1,
-            "package": package
+            "package": package,
+            "type": str(node_type)
         }
         if node_type == NodeType.STATION:
             attribs["group"]=cfgfile.get_global_attrib("cfg_groupTag")
             attribs["version"]=cfgfile.get_global_attrib("version")
-            attribs["type"]="STATION"
         elif node_type == NodeType.PRODUCT:
             attribs["group"]="product"
             attribs["version"]="0.0.0"
-            attribs["type"]="PRODUCT"
         else:
             raise ValueError("Unknown NodeType")
 
@@ -97,12 +105,23 @@ class Grapher(object):
         else:
             if self.verbocity > 1: print(name + "++")
 
-        # check for products matching wld.%.card values and auto-link them:
-        if node_type == NodeType.PRODUCT and "%" in name:
-            matches = self._get_nodes_that_match(name)
-            for match in matches:
-                if match != name:  # don't link to self
-                    self._add_edge(match, name)
+    def _finalize(self):
+        self._auto_link()
+
+    def _auto_link(self):
+        '''
+        check for products matching wld.%.card values and auto-link them:
+        '''
+        node_types = netx.get_node_attributes(self.graph,'type')
+        for name in self.graph.nodes():
+            node_type = node_types[name]
+            print("n:",name, 't:', node_type)
+            if node_type == str(NodeType.PRODUCT) and "%" in name:
+                matches = self._get_nodes_that_match(name)
+                print("m:", matches)
+                for match in matches:
+                    if match != name:  # don't link to self
+                        self._add_edge(match, name)
 
     def _get_nodes_that_match(self, expr):
         """ returns nodes that match expr with % wildcard (and other regex) """
@@ -121,6 +140,7 @@ class Grapher(object):
         return result
 
     def _add_edge(self, from_node, to_node):
+        if self.verbocity > 1: print(from_node, "=>", to_node)
         self.graph.add_edge(
             from_node,
             to_node,
