@@ -102,7 +102,7 @@ class Grapher(object):
             matches = self._get_nodes_that_match(name)
             for match in matches:
                 if match != name:  # don't link to self
-                    self._add_edge(name, match)
+                    self._add_edge(match, name)
 
     def _get_nodes_that_match(self, expr):
         """ returns nodes that match expr with % wildcard (and other regex) """
