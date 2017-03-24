@@ -109,7 +109,7 @@ class Grapher(object):
         result = []
         pattern = re.compile(expr.replace("%", "*"))
         for node in self.graph.nodes():
-            if pattern.match(expr):
+            if pattern.match(node):
                 result.append(node)
         return result
 
