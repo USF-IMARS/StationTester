@@ -188,3 +188,23 @@ runFlag="true" standardFile="stdfileL1A" errorFile="errfileL1A"
   <env name="PATH" value="{modis_L1_home}{/}run{/}scripts:{modis_L1_home}{/}run{/}bin:{PATH}"/>
 </Ncs_run>
 ```
+
+# Theoretically planned implementation
+NOTE: this section contains information about a planned (not yet complete) implementation.
+
+There are three levels of tests within the IPOPP setup. 
+
+1. Unit/Module/Script Level (multiple sets per station)
+    1. tests a single "unit" of code 
+    2. triggered whenever a change is committed 
+    3. uses Travis CI 
+2. Algorithm Level (one set per station algorithm (multiple algorithms per station))
+    1. tests an entire IPOPP station, starting with test input data and checking against expected output. (eg L0->L1). 
+    2. run on an *ad hoc* basis
+    3. uses python3's "nose" module.
+    4. (see also each station's pdf & testing package. eg: modisl1db*.pdf/"Software Package Testing and Validation"
+3. Stack/Integration Level (one set for all stations)
+    1. tests the full stack of stations, starting from test L0 inputs and checking the final products. 
+    2. uses python3's "nose" module.
+    3. Triggered automatically on a periodic basis (nightly?).
+
